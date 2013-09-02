@@ -176,18 +176,25 @@ class EcsManager(pyglet.event.EventDispatcher):
 	def get_input_handler(self, name):
 		return self.input_handlers[name]
 
-	def init(self):
+	def setup_handlers(self):
 		for system in self.systems.values():
-			system.init()
 			self.push_handlers(system)
 
 		for renderer in self.renderers.values():
+			self.push_handlers(renderer)
+
+		for input_handler in self.input_handlers.values():
+			self.push_handlers(input_handler)
+
+	def init(self):
+		for system in self.systems.values():
+			system.init()
+
+		for renderer in self.renderers.values():
 			renderer.init()
-			self.push_handlers(system)
 
 		for input_handler in self.input_handlers.values():
 			input_handler.init()
-			self.push_handlers(input_handler)
 
 	def cleanup(self):
 		try:
@@ -214,7 +221,8 @@ class EcsManager(pyglet.event.EventDispatcher):
 			supplied = False
 			for comp in comps:
 				if comp.name == name:
-					lst.append(copy.deepcopy(comp))
+					#lst.append(copy.deepcopy(comp))
+					lst.append(comp)
 					supplied = True
 			if not supplied:
 				lst.append(None)

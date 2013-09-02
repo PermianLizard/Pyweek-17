@@ -1,8 +1,10 @@
 from plib import director
+import font
 import menu
 import game
 
 def init():
+	font.init()
 	menu.init()
 	game.init()
 	#director.director.push(menu.menu_scene)

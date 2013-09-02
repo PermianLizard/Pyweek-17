@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import game.main
+import game.start
 
 if __name__ == "__main__":
-	game.main.run()
+	game.start.run()

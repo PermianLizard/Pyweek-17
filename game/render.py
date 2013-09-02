@@ -5,6 +5,7 @@ from pyglet import gl
 from plib import vec2d
 from plib import ecs
 
+import font
 import const
 import phys
 import coll
@@ -66,6 +67,13 @@ class RenderPlanetEcsComponent(ecs.EcsComponent):
 	def __init__(self):
 		super(RenderPlanetEcsComponent, self).__init__()
 
+		self.label = pyglet.text.Label('',
+                          font_name=font.FONT_MONO.name,
+                          font_size=24,
+                          x=0, y=0,
+                          #anchor_x='center', anchor_y='center',
+                          color=(100, 100, 100, 255))
+
 	def __str__(self):
 		return 'RenderPlanetEcsComponent'
 
@@ -90,6 +98,21 @@ class GameEcsRenderer(ecs.EcsRenderer):
 
 		self.tx = 0.0
 		self.ty = 0.0
+
+	def on_create_entity(self, eid, system_name, event):
+		planet_comp_list = self.manager.comps[planet.PlanetEcsComponent.name()]
+		rend_plan_comp_list = self.manager.comps[RenderPlanetEcsComponent.name()]
+
+		entities = self.manager.entities
+		for idx, eid in enumerate(entities):
+			planetc = planet_comp_list[idx]
+
+			if planetc:
+				rpc = rend_plan_comp_list[idx]
+				rpc.label.text = planetc.pname
+
+
+
 
 	def draw(self):
 		ppc = self.manager.get_entity_comp(self.player_entity_id, phys.PhysicsEcsComponent.name())
@@ -137,8 +160,18 @@ class GameEcsRenderer(ecs.EcsRenderer):
 
 				draw_circle(physc.pos.x, physc.pos.y, collc.radius)
 
+				
+
 				gc = grav_comp_list[idx]
 				if gc and gc.gravity_radius:
 					draw_circle(physc.pos.x, physc.pos.y, gc.gravity_radius, None, gl.GL_LINE_LOOP)
 
 		gl.glPopMatrix()
+
+		#for idx, eid in enumerate(entities):
+		#	rpc = rend_plan_comp_list[idx]
+		#	if rpc:
+		#		physc = phys_comp_list[idx]
+		#		rpc.label.x = physc.pos.x + self.tx
+		#		rpc.label.y = physc.pos.y + self.ty
+		#		rpc.label.draw()

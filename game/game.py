@@ -47,18 +47,18 @@ class GameEcsManager(ecs.EcsManager):
 		sun = ecsm.create_entity([phys.PhysicsEcsComponent(-200, 0, 1000000, True), 
 				phys.GravityEcsComponent(500),
 				coll.CollisionEcsComponent(100),
-				planet.PlanetEcsComponent(),
+				planet.PlanetEcsComponent('Sol'),
 				render.RenderPlanetEcsComponent()])
 		planet1 = ecsm.create_entity([phys.PhysicsEcsComponent(800, 100, 800000, True), 
 				phys.GravityEcsComponent(340),
 				coll.CollisionEcsComponent(64),
-				planet.PlanetEcsComponent(),
+				planet.PlanetEcsComponent('Tamande'),
 				render.RenderPlanetEcsComponent()])
 
 		planet1_m1 = ecsm.create_entity([phys.PhysicsEcsComponent(800, 100, 80000, False), 
 				phys.GravityEcsComponent(70),
 				coll.CollisionEcsComponent(28),
-				planet.PlanetEcsComponent(),
+				planet.PlanetEcsComponent('Tamande 1'),
 				render.RenderPlanetEcsComponent()])
 		self.get_system(phys.PhysicsEcsSystem.name()).set_orbit(planet1_m1, planet1, 250, 70, True)
 		
@@ -70,6 +70,7 @@ class GameEcsManager(ecs.EcsManager):
 		self.get_system(phys.PhysicsEcsSystem.name()).set_orbit(player_ship, planet1, 120, 0, True)
 
 		super(GameEcsManager, self).init()
+
 
 game_scene = None
 ecsm = None 
@@ -83,8 +84,9 @@ def new_game():
 	logging.debug('new game started')
 	global ecsm
 	ecsm = GameEcsManager()
-	ecsm.init()
 	ecsm.keys = director.keys
+	ecsm.setup_handlers()
+	ecsm.init()
 
 
 def clean_game():
