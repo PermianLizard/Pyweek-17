@@ -8,41 +8,12 @@ from plib import scene
 from plib import ecs
 from plib import vec2d
 
+import const
 import phys
 import coll
 import player
 import ship
-
-
-### TEMP ###
-def get_num_circle_segments(r):
-	return int(10 * math.sqrt(r))
-
-def draw_circle(cx, cy, r, num_segments=None, mode=gl.GL_POLYGON, color=(1, 1, 1, 1)):
-	if not num_segments:
-		num_segments = get_num_circle_segments(r)
-
-	theta = 2 * math.pi / float(num_segments)
-	tangetial_factor = math.tan(theta)
-	radial_factor = math.cos(theta)
-
-	x = float(r)
-	y = 0.0
-
-	gl.glColor3f(color[0], color[1], color[2], color[3])
-	gl.glBegin(mode)
-	for i in xrange(num_segments):
-		gl.glVertex2f(x + cx, y + cy)
-
-		tx = y * -1
-		ty = x
-
-		x += tx * tangetial_factor
-		y += ty * tangetial_factor
-
-		x *= radial_factor
-		y *= radial_factor
-	gl.glEnd()
+import render
 
 
 class GameEcsManager(ecs.EcsManager):
@@ -56,7 +27,7 @@ class GameEcsManager(ecs.EcsManager):
 		self.add_system(player.PlayerEscSystem())
 
 		# renderers
-		self.add_renderer(GameEcsRenderer())
+		self.add_renderer(render.GameEcsRenderer())
 
 		# input handlers
 		self.add_input_handler(player.PlayerEscInputHandler())
@@ -84,47 +55,6 @@ class GameEcsManager(ecs.EcsManager):
 		self.get_system(phys.PhysicsEcsSystem.name()).set_orbit(e2, e3, 100, 0, True)
 
 		super(GameEcsManager, self).init()
-
-
-class GameEcsRenderer(ecs.EcsRenderer):
-
-	@classmethod
-	def name(cls):
-		return 'game-renderer'
-
-	def __init__(self):
-		super(GameEcsRenderer, self).__init__()
-
-	def draw(self):
-		phys_comp_list = self.manager.comps[phys.PhysicsEcsComponent.name()]
-		grav_comp_list = self.manager.comps[phys.GravityEcsComponent.name()]
-		coll_comp_list = self.manager.comps[coll.CollisionEcsComponent.name()]
-		ship_comp_list = self.manager.comps[ship.ShipEcsComponent.name()]
-
-		entities = self.manager.entities
-		for idx, eid in enumerate(entities):
-			pc = phys_comp_list[idx]
-			gc = grav_comp_list[idx]
-			cc = coll_comp_list[idx]
-			sc = ship_comp_list[idx]
-
-			if pc and cc:
-				draw_circle(pc.pos.x, pc.pos.y, cc.radius)
-
-				if gc and gc.gravity_radius:
-					draw_circle(pc.pos.x, pc.pos.y, gc.gravity_radius, None, gl.GL_LINE_LOOP)
-
-				if sc:
-					dir_radians = math.radians(sc.rotation)
-					dirv = vec2d.vec2d(math.cos(dir_radians), math.sin(dir_radians))
-					dirv.length = cc.radius
-
-					draw_circle(pc.pos.x, pc.pos.y, 5, None, gl.GL_POLYGON, (1, 0, 0, 1))
-					gl.glColor3f(1, 0, 0, 1)
-					gl.glBegin(gl.GL_LINES)
-					gl.glVertex2f(pc.pos.x, pc.pos.y)
-					gl.glVertex2f(pc.pos.x + dirv.x, pc.pos.y + dirv.y)
-					gl.glEnd()
 
 game_scene = None
 ecsm = None 
