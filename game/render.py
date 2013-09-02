@@ -42,6 +42,33 @@ def draw_circle(cx, cy, r, num_segments=None, mode=gl.GL_POLYGON, color=(1, 1, 1
 		y *= radial_factor
 	gl.glEnd()
 
+
+class RenderShipEcsComponent(ecs.EcsComponent):
+
+	@classmethod
+	def name(cls):
+		return 'render-ship-component'
+
+	def __init__(self):
+		super(RenderShipEcsComponent, self).__init__()
+
+	def __str__(self):
+		return 'RenderShipEcsComponent'
+
+
+class RenderPlanetEcsComponent(ecs.EcsComponent):
+
+	@classmethod
+	def name(cls):
+		return 'render-planet-component'
+
+	def __init__(self):
+		super(RenderPlanetEcsComponent, self).__init__()
+
+	def __str__(self):
+		return 'RenderPlanetEcsComponent'
+
+
 class GameEcsRenderer(ecs.EcsRenderer):
 
 	@classmethod
@@ -77,30 +104,38 @@ class GameEcsRenderer(ecs.EcsRenderer):
 		grav_comp_list = self.manager.comps[phys.GravityEcsComponent.name()]
 		coll_comp_list = self.manager.comps[coll.CollisionEcsComponent.name()]
 		ship_comp_list = self.manager.comps[ship.ShipEcsComponent.name()]
+		rend_plan_comp_list = self.manager.comps[RenderPlanetEcsComponent.name()]
+		rend_ship_comp_list = self.manager.comps[RenderShipEcsComponent.name()]
 
 		entities = self.manager.entities
 		for idx, eid in enumerate(entities):
-			pc = phys_comp_list[idx]
-			gc = grav_comp_list[idx]
-			cc = coll_comp_list[idx]
-			sc = ship_comp_list[idx]
+			rpc = rend_plan_comp_list[idx]
+			rsc = rend_ship_comp_list[idx]
 
-			if pc and cc:
+			pc = phys_comp_list[idx]
+			cc = coll_comp_list[idx]
+
+			if rsc:
+				sc = ship_comp_list[idx]
+
+				draw_circle(pc.pos.x, pc.pos.y, cc.radius, None, gl.GL_POLYGON, (1, 1, 0, 1))
+
+				dir_radians = math.radians(sc.rotation)
+				dirv = vec2d.vec2d(math.cos(dir_radians), math.sin(dir_radians))
+				dirv.length = cc.radius
+
+				gl.glColor3f(1, 0, 0, 1)
+				gl.glBegin(gl.GL_LINES)
+				gl.glVertex2f(pc.pos.x, pc.pos.y)
+				gl.glVertex2f(pc.pos.x + dirv.x, pc.pos.y + dirv.y)
+				gl.glEnd()
+
+			if rpc:
+				gc = grav_comp_list[idx]
+
 				draw_circle(pc.pos.x, pc.pos.y, cc.radius)
 
 				if gc and gc.gravity_radius:
 					draw_circle(pc.pos.x, pc.pos.y, gc.gravity_radius, None, gl.GL_LINE_LOOP)
-
-				if sc:
-					dir_radians = math.radians(sc.rotation)
-					dirv = vec2d.vec2d(math.cos(dir_radians), math.sin(dir_radians))
-					dirv.length = cc.radius
-
-					draw_circle(pc.pos.x, pc.pos.y, 5, None, gl.GL_POLYGON, (1, 0, 0, 1))
-					gl.glColor3f(1, 0, 0, 1)
-					gl.glBegin(gl.GL_LINES)
-					gl.glVertex2f(pc.pos.x, pc.pos.y)
-					gl.glVertex2f(pc.pos.x + dirv.x, pc.pos.y + dirv.y)
-					gl.glEnd()
 
 		gl.glPopMatrix()

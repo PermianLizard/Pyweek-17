@@ -59,9 +59,11 @@ class PlayerEscSystem(ecs.EcsSystem):
 				self.player_entity_id = eid
 
 	def update(self, dt):
-		if self.manager.keys[pyglet.window.key.LEFT]:
+		if not self.player_entity_id or self.player_entity_id not in self.manager.entities:
+			return
+		if self.manager.keys[pyglet.window.key.LEFT] or self.manager.keys[pyglet.window.key.A]:
 			self.manager.get_system(ship.ShipEcsSystem.name()).turn_left(self.player_entity_id)
-		elif self.manager.keys[pyglet.window.key.RIGHT]:
+		elif self.manager.keys[pyglet.window.key.RIGHT] or self.manager.keys[pyglet.window.key.D]:
 			self.manager.get_system(ship.ShipEcsSystem.name()).turn_right(self.player_entity_id)
-		elif self.manager.keys[pyglet.window.key.UP]:
+		elif self.manager.keys[pyglet.window.key.UP] or self.manager.keys[pyglet.window.key.W]:
 			self.manager.get_system(ship.ShipEcsSystem.name()).thrust_forward(self.player_entity_id)
