@@ -12,6 +12,7 @@ import const
 import phys
 import coll
 import player
+import planet
 import ship
 import render
 
@@ -37,27 +38,36 @@ class GameEcsManager(ecs.EcsManager):
 		self.reg_comp_type(phys.GravityEcsComponent.name())
 		self.reg_comp_type(coll.CollisionEcsComponent.name())
 		self.reg_comp_type(player.PlayerIdentityEcsComponent.name())
+		self.reg_comp_type(planet.PlanetEcsComponent.name())
 		self.reg_comp_type(ship.ShipEcsComponent.name())
 		self.reg_comp_type(render.RenderPlanetEcsComponent.name())
 		self.reg_comp_type(render.RenderShipEcsComponent.name())
 
 	def init(self):
-		e1 = ecsm.create_entity([phys.PhysicsEcsComponent(100, 100, 30000, False), 
-				phys.GravityEcsComponent(340),
-				coll.CollisionEcsComponent(12),
+		sun = ecsm.create_entity([phys.PhysicsEcsComponent(-200, 0, 1000000, True), 
+				phys.GravityEcsComponent(500),
+				coll.CollisionEcsComponent(100),
+				planet.PlanetEcsComponent(),
 				render.RenderPlanetEcsComponent()])
-		e2 = ecsm.create_entity([phys.PhysicsEcsComponent(300, 300, 10, False),
+		planet1 = ecsm.create_entity([phys.PhysicsEcsComponent(800, 100, 800000, True), 
+				phys.GravityEcsComponent(340),
+				coll.CollisionEcsComponent(64),
+				planet.PlanetEcsComponent(),
+				render.RenderPlanetEcsComponent()])
+
+		planet1_m1 = ecsm.create_entity([phys.PhysicsEcsComponent(800, 100, 80000, False), 
+				phys.GravityEcsComponent(70),
+				coll.CollisionEcsComponent(28),
+				planet.PlanetEcsComponent(),
+				render.RenderPlanetEcsComponent()])
+		self.get_system(phys.PhysicsEcsSystem.name()).set_orbit(planet1_m1, planet1, 250, 70, True)
+		
+		player_ship = ecsm.create_entity([phys.PhysicsEcsComponent(300, 300, 10, False),
 				coll.CollisionEcsComponent(12), 
 				player.PlayerIdentityEcsComponent(), 
 				ship.ShipEcsComponent(90.0, 6, 10.0),
 				render.RenderShipEcsComponent()])
-		e3 = ecsm.create_entity([phys.PhysicsEcsComponent(200, 200, 80000, True), 
-				phys.GravityEcsComponent(340),
-				coll.CollisionEcsComponent(24),
-				render.RenderPlanetEcsComponent()])
-
-		self.get_system(phys.PhysicsEcsSystem.name()).set_orbit(e1, e3, 100, 180, True)
-		self.get_system(phys.PhysicsEcsSystem.name()).set_orbit(e2, e3, 100, 0, True)
+		self.get_system(phys.PhysicsEcsSystem.name()).set_orbit(player_ship, planet1, 120, 0, True)
 
 		super(GameEcsManager, self).init()
 

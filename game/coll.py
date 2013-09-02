@@ -1,5 +1,7 @@
 from plib import ecs
 import phys
+import ship
+import planet
 
 class CollisionEcsComponent(ecs.EcsComponent):
 
@@ -28,32 +30,40 @@ class CollisionEcsSystem(ecs.EcsSystem):
 	def update(self, dt):
 		phys_comp_list = self.manager.comps[phys.PhysicsEcsComponent.name()]
 		coll_comp_list = self.manager.comps[CollisionEcsComponent.name()]
+		ship_comp_list = self.manager.comps[ship.ShipEcsComponent.name()]
+		planet_comp_list = self.manager.comps[planet.PlanetEcsComponent.name()]
 
 		entities_to_remove = set()
 
 		entities = self.manager.entities
 		for idx, eid in enumerate(entities):
-			pc = phys_comp_list[idx]
-			cc = coll_comp_list[idx]
+			physc = phys_comp_list[idx]
+			collc = coll_comp_list[idx]
+			shipc = ship_comp_list[idx]
+			planetc = planet_comp_list[idx]
 
-			if pc == None or cc == None:
+			if physc == None or collc == None:
 				continue
 
 			for oidx, oeid in enumerate(entities):
 				if eid == oeid: continue
 
-				opc = phys_comp_list[oidx]
-				occ = coll_comp_list[oidx]
+				ophysc = phys_comp_list[oidx]
+				ocollc = coll_comp_list[oidx]
+				oshipc = ship_comp_list[oidx]
+				oplanetc = planet_comp_list[oidx]
 
-				if opc == None or occ == None:
+				if ophysc == None or ocollc == None:
 					continue
 
-				d = pc.pos.get_distance(opc.pos)
-				coll_d = cc.radius + occ.radius
+				d = physc.pos.get_distance(ophysc.pos)
+				coll_d = collc.radius + ocollc.radius
 
 				if d <= coll_d:
-					entities_to_remove.add(eid)
-					entities_to_remove.add(oeid)
+					if not planetc:
+						entities_to_remove.add(eid)
+					if not oplanetc:
+						entities_to_remove.add(oeid)
 
 		for eid in entities_to_remove:
 			self.manager.remove_entity(eid, CollisionEcsSystem.name(), 'collision')

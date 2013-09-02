@@ -9,6 +9,7 @@ import const
 import phys
 import coll
 import player
+import planet
 import ship
 
 
@@ -103,39 +104,41 @@ class GameEcsRenderer(ecs.EcsRenderer):
 		phys_comp_list = self.manager.comps[phys.PhysicsEcsComponent.name()]
 		grav_comp_list = self.manager.comps[phys.GravityEcsComponent.name()]
 		coll_comp_list = self.manager.comps[coll.CollisionEcsComponent.name()]
+		planet_comp_list = self.manager.comps[planet.PlanetEcsComponent.name()]
 		ship_comp_list = self.manager.comps[ship.ShipEcsComponent.name()]
 		rend_plan_comp_list = self.manager.comps[RenderPlanetEcsComponent.name()]
 		rend_ship_comp_list = self.manager.comps[RenderShipEcsComponent.name()]
 
 		entities = self.manager.entities
 		for idx, eid in enumerate(entities):
-			rpc = rend_plan_comp_list[idx]
-			rsc = rend_ship_comp_list[idx]
+			shipc = ship_comp_list[idx]
+			planetc = planet_comp_list[idx]
 
-			pc = phys_comp_list[idx]
-			cc = coll_comp_list[idx]
+			physc = phys_comp_list[idx]
+			collc = coll_comp_list[idx]
 
-			if rsc:
-				sc = ship_comp_list[idx]
+			if shipc:
+				rsc = rend_ship_comp_list[idx]	
 
-				draw_circle(pc.pos.x, pc.pos.y, cc.radius, None, gl.GL_POLYGON, (1, 1, 0, 1))
+				draw_circle(physc.pos.x, physc.pos.y, collc.radius, None, gl.GL_POLYGON, (1, 1, 0, 1))
 
-				dir_radians = math.radians(sc.rotation)
+				dir_radians = math.radians(shipc.rotation)
 				dirv = vec2d.vec2d(math.cos(dir_radians), math.sin(dir_radians))
-				dirv.length = cc.radius
+				dirv.length = collc.radius
 
 				gl.glColor3f(1, 0, 0, 1)
 				gl.glBegin(gl.GL_LINES)
-				gl.glVertex2f(pc.pos.x, pc.pos.y)
-				gl.glVertex2f(pc.pos.x + dirv.x, pc.pos.y + dirv.y)
+				gl.glVertex2f(physc.pos.x, physc.pos.y)
+				gl.glVertex2f(physc.pos.x + dirv.x, physc.pos.y + dirv.y)
 				gl.glEnd()
 
-			if rpc:
+			elif planetc:
+				rpc = rend_plan_comp_list[idx]
+
+				draw_circle(physc.pos.x, physc.pos.y, collc.radius)
+
 				gc = grav_comp_list[idx]
-
-				draw_circle(pc.pos.x, pc.pos.y, cc.radius)
-
 				if gc and gc.gravity_radius:
-					draw_circle(pc.pos.x, pc.pos.y, gc.gravity_radius, None, gl.GL_LINE_LOOP)
+					draw_circle(physc.pos.x, physc.pos.y, gc.gravity_radius, None, gl.GL_LINE_LOOP)
 
 		gl.glPopMatrix()

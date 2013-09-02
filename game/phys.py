@@ -4,7 +4,7 @@ from plib import vec2d
 from plib import ecs
 
 GRAV_CONSTANT = 1
-SPEED_LIMIT = 300
+SPEED_LIMIT = 200
 
 
 class PhysicsEcsComponent(ecs.EcsComponent):
