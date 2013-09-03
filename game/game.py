@@ -9,6 +9,7 @@ from plib import ecs
 from plib import vec2d
 
 import const
+import map
 import phys
 import coll
 import player
@@ -120,6 +121,8 @@ class GameScene(scene.Scene):
 			director.pop()
 		elif symbol == pyglet.window.key.P:
 			self.paused = not self.paused
+		elif symbol == pyglet.window.key.M:
+			director.push(map.map_scene)
 		elif not self.paused:
 			ecsm.on_key_press(symbol, modifiers)
 
