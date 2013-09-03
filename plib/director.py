@@ -58,7 +58,7 @@ class Director(pyglet.event.EventDispatcher):
 		self._width = width
 		self._height = height
 
-		self._window = pyglet.window.Window(width, height, caption=caption, resizable=False)
+		self._window = pyglet.window.Window(width, height, caption=caption, resizable=False, vsync=False)
 		if self._fullscreen:
 			self._window.set_fullscreen(True)
 		else:

@@ -42,11 +42,13 @@ def run():
 		logging.debug("Debug enabled")
 		logging.debug("Options: %s" % options)
 
-	gl.glEnable(gl.GL_BLEND)
+	gl.glEnable(gl.GL_BLEND)                                                            
 	gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
+	#gl.glEnable(gl.GL_LINE_SMOOTH);                                                     
+	#gl.glHint(gl.GL_LINE_SMOOTH_HINT, gl.GL_DONT_CARE) 
 
 	# depth testing
-	gl.glEnable(gl.GL_DEPTH_TEST)
+	#gl.glEnable(gl.GL_DEPTH_TEST)
 
 	plib.director.director.init(width=WIDTH, 
 		height=HEIGHT, 

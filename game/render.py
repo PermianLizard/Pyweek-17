@@ -7,12 +7,15 @@ from plib import vec2d
 from plib import ecs
 
 import font
+import img
 import const
 import phys
 import coll
 import player
 import planet
 import ship
+
+import starfield
 
 
 ### TEMP ###
@@ -93,6 +96,12 @@ class GameEcsRenderer(ecs.EcsRenderer):
 		self.tx = 0.0
 		self.ty = 0.0
 
+		self.hud_sprite = pyglet.sprite.Sprite(img.get(img.IMG_HUD))
+		self.hud_sprite.x = 0
+		self.hud_sprite.y = 0
+
+		self.starfield = starfield.Starfield((0, 0, const.WIDTH, const.HEIGHT), 200)
+
 	def on_create_entity(self, eid, system_name, event):
 		planet_comp_list = self.manager.comps[planet.PlanetEcsComponent.name()]
 		rend_plan_comp_list = self.manager.comps[RenderPlanetEcsComponent.name()]
@@ -110,9 +119,15 @@ class GameEcsRenderer(ecs.EcsRenderer):
 			self.tx = ppc.pos.x - const.WIDTH / 2
 			self.ty = ppc.pos.y - const.HEIGHT / 2
 
+		tx = self.tx
+		ty = self.ty
+		area = (tx, ty, const.WIDTH, const.HEIGHT)
+
+		self.starfield.draw(tx, ty)
+
 		gl.glPushMatrix()
 		gl.glLoadIdentity()
-		gl.glTranslatef(-self.tx, -self.ty, 0.0)
+		gl.glTranslatef(-tx, -ty, 0.0)
 
 		phys_comp_list = self.manager.comps[phys.PhysicsEcsComponent.name()]
 		grav_comp_list = self.manager.comps[phys.GravityEcsComponent.name()]
@@ -152,15 +167,18 @@ class GameEcsRenderer(ecs.EcsRenderer):
 
 				if planetc.pname:
 					label = pyglet.text.Label(planetc.pname,
-	                          font_name=font.MONO.name,
+	                          font_name=font.FONT_MONO.name,
 	                          font_size=12,
 	                          x=physc.pos.x, y=physc.pos.y, #  + collc.radius + 5
 	                          anchor_x='center', anchor_y='center',
 	                          color=(0, 255, 0, 255))
 					label.draw()
 
-				gc = grav_comp_list[idx]
-				if gc and gc.gravity_radius:
-					draw_circle(physc.pos.x, physc.pos.y, gc.gravity_radius, None, gl.GL_LINE_LOOP)
+				#gc = grav_comp_list[idx]
+				#if gc and gc.gravity_radius:
+				#	draw_circle(physc.pos.x, physc.pos.y, gc.gravity_radius, None, gl.GL_LINE_LOOP)
 
 		gl.glPopMatrix()
+
+		# draw the HUD
+		#self.hud_sprite.draw()

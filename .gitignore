@@ -68,3 +68,6 @@ bin/
 
 # Python
 *.pyc
+
+# Gimp
+*.xcf
