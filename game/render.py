@@ -1,5 +1,6 @@
 import math
 import pyglet
+import random
 from pyglet import gl
 
 from plib import vec2d
@@ -67,13 +68,6 @@ class RenderPlanetEcsComponent(ecs.EcsComponent):
 	def __init__(self):
 		super(RenderPlanetEcsComponent, self).__init__()
 
-		self.label = pyglet.text.Label('',
-                          font_name=font.FONT_MONO.name,
-                          font_size=24,
-                          x=0, y=0,
-                          #anchor_x='center', anchor_y='center',
-                          color=(100, 100, 100, 255))
-
 	def __str__(self):
 		return 'RenderPlanetEcsComponent'
 
@@ -109,20 +103,16 @@ class GameEcsRenderer(ecs.EcsRenderer):
 
 			if planetc:
 				rpc = rend_plan_comp_list[idx]
-				rpc.label.text = planetc.pname
-
-
-
 
 	def draw(self):
 		ppc = self.manager.get_entity_comp(self.player_entity_id, phys.PhysicsEcsComponent.name())
 		if ppc:
-			self.tx = -ppc.pos.x + const.WIDTH / 2
-			self.ty = -ppc.pos.y + const.HEIGHT / 2
+			self.tx = ppc.pos.x - const.WIDTH / 2
+			self.ty = ppc.pos.y - const.HEIGHT / 2
 
 		gl.glPushMatrix()
 		gl.glLoadIdentity()
-		gl.glTranslatef(self.tx, self.ty, 0.0)
+		gl.glTranslatef(-self.tx, -self.ty, 0.0)
 
 		phys_comp_list = self.manager.comps[phys.PhysicsEcsComponent.name()]
 		grav_comp_list = self.manager.comps[phys.GravityEcsComponent.name()]
@@ -160,18 +150,17 @@ class GameEcsRenderer(ecs.EcsRenderer):
 
 				draw_circle(physc.pos.x, physc.pos.y, collc.radius)
 
-				
+				if planetc.pname:
+					label = pyglet.text.Label(planetc.pname,
+	                          font_name=font.MONO.name,
+	                          font_size=12,
+	                          x=physc.pos.x, y=physc.pos.y, #  + collc.radius + 5
+	                          anchor_x='center', anchor_y='center',
+	                          color=(0, 255, 0, 255))
+					label.draw()
 
 				gc = grav_comp_list[idx]
 				if gc and gc.gravity_radius:
 					draw_circle(physc.pos.x, physc.pos.y, gc.gravity_radius, None, gl.GL_LINE_LOOP)
 
 		gl.glPopMatrix()
-
-		#for idx, eid in enumerate(entities):
-		#	rpc = rend_plan_comp_list[idx]
-		#	if rpc:
-		#		physc = phys_comp_list[idx]
-		#		rpc.label.x = physc.pos.x + self.tx
-		#		rpc.label.y = physc.pos.y + self.ty
-		#		rpc.label.draw()

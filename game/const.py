@@ -2,7 +2,7 @@
 Game constants
 """
 
-APP_NAME = "Moon Base Evacuation"
+APP_NAME = "Cambrian"
 PROJECT_DESC = "Pyweek 17 entry"
 PROJECT_URL = "http://pyweek.org/e/Cambrian/"
 VERSION = "0.1"

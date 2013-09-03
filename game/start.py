@@ -45,6 +45,9 @@ def run():
 	gl.glEnable(gl.GL_BLEND)
 	gl.glBlendFunc(gl.GL_SRC_ALPHA, gl.GL_ONE_MINUS_SRC_ALPHA)
 
+	# depth testing
+	gl.glEnable(gl.GL_DEPTH_TEST)
+
 	plib.director.director.init(width=WIDTH, 
 		height=HEIGHT, 
 		fullscreen=options.fullscreen, 

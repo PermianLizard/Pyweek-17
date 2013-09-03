@@ -58,7 +58,7 @@ class GameEcsManager(ecs.EcsManager):
 		planet1_m1 = ecsm.create_entity([phys.PhysicsEcsComponent(800, 100, 80000, False), 
 				phys.GravityEcsComponent(70),
 				coll.CollisionEcsComponent(28),
-				planet.PlanetEcsComponent('Tamande 1'),
+				planet.PlanetEcsComponent(''),
 				render.RenderPlanetEcsComponent()])
 		self.get_system(phys.PhysicsEcsSystem.name()).set_orbit(planet1_m1, planet1, 250, 70, True)
 		
@@ -97,10 +97,13 @@ def clean_game():
 
 
 class GameScene(scene.Scene):
-	pass
+
+	def __init__(self):
+		super(GameScene, self).__init__()
 
 	def enter(self):
 		new_game()
+		self.paused = False
 
 	def exit(self):
 		clean_game()
@@ -109,34 +112,45 @@ class GameScene(scene.Scene):
 		ecsm.draw()
 
 	def update(self, dt):
-		ecsm.update(dt)
+		if not self.paused:
+			ecsm.update(dt)
 
 	def on_key_press(self, symbol, modifiers):
 		if symbol == pyglet.window.key.ESCAPE:
 			director.pop()
-		else:
+		elif symbol == pyglet.window.key.P:
+			self.paused = not self.paused
+		elif not self.paused:
 			ecsm.on_key_press(symbol, modifiers)
 
 	def on_key_release(self, symbol, modifiers):
-		ecsm.on_key_release(symbol, modifiers)
+		if not self.paused:
+			ecsm.on_key_release(symbol, modifiers)
 
 	def on_mouse_motion(self, x, y, dx, dy):
-		ecsm.on_mouse_motion(x, y, dx, dy)
+		if not self.paused:
+			ecsm.on_mouse_motion(x, y, dx, dy)
 	
 	def on_mouse_press(self, x, y, button, modifiers):
-		ecsm.on_mouse_press(x, y, button, modifiers)
+		if not self.paused:
+			ecsm.on_mouse_press(x, y, button, modifiers)
 	
 	def on_mouse_release(self, x, y, button, modifiers):
-		ecsm.on_mouse_release(x, y, button, modifiers)
+		if not self.paused:
+			ecsm.on_mouse_release(x, y, button, modifiers)
 	
 	def on_mouse_drag(self, x, y, dx, dy, buttons, modifiers):
-		ecsm.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
+		if not self.paused:
+			ecsm.on_mouse_drag(x, y, dx, dy, buttons, modifiers)
 
 	def on_mouse_enter(self, x, y):
-		ecsm.on_mouse_enter(x, y)
+		if not self.paused:
+			ecsm.on_mouse_enter(x, y)
 	
 	def on_mouse_leave(self, x, y):
-		ecsm.on_mouse_leave(x, y)
+		if not self.paused:
+			ecsm.on_mouse_leave(x, y)
 	
 	def on_mouse_scroll(self, x, y, scroll_x, scroll_y):
-		ecsm.on_mouse_scroll(x, y, scroll_x, scroll_y)
+		if not self.paused:
+			ecsm.on_mouse_scroll(x, y, scroll_x, scroll_y)
