@@ -16,6 +16,7 @@ import player
 import planet
 import ship
 import render
+import level
 
 
 class GameEcsManager(ecs.EcsManager):
@@ -45,30 +46,15 @@ class GameEcsManager(ecs.EcsManager):
 		self.reg_comp_type(render.RenderShipEcsComponent.name())
 
 	def init(self):
-		sun = ecsm.create_entity([phys.PhysicsEcsComponent(-200, 0, 1000000, True), 
-				phys.GravityEcsComponent(500),
-				coll.CollisionEcsComponent(100),
-				planet.PlanetEcsComponent('Sol'),
-				render.RenderPlanetEcsComponent()])
-		planet1 = ecsm.create_entity([phys.PhysicsEcsComponent(800, 100, 800000, True), 
-				phys.GravityEcsComponent(340),
-				coll.CollisionEcsComponent(64),
-				planet.PlanetEcsComponent('Tamande'),
-				render.RenderPlanetEcsComponent()])
 
-		planet1_m1 = ecsm.create_entity([phys.PhysicsEcsComponent(800, 100, 80000, False), 
-				phys.GravityEcsComponent(70),
-				coll.CollisionEcsComponent(28),
-				planet.PlanetEcsComponent(''),
-				render.RenderPlanetEcsComponent()])
-		self.get_system(phys.PhysicsEcsSystem.name()).set_orbit(planet1_m1, planet1, 250, 70, True)
-		
+		level.generate(ecsm)
+
 		player_ship = ecsm.create_entity([phys.PhysicsEcsComponent(300, 300, 10, False),
 				coll.CollisionEcsComponent(12), 
 				player.PlayerIdentityEcsComponent(), 
 				ship.ShipEcsComponent(90.0, 6, 10.0),
 				render.RenderShipEcsComponent()])
-		self.get_system(phys.PhysicsEcsSystem.name()).set_orbit(player_ship, planet1, 120, 0, True)
+		#self.get_system(phys.PhysicsEcsSystem.name()).set_orbit(player_ship, planet1, 120, 0, True)
 
 		super(GameEcsManager, self).init()
 
@@ -121,7 +107,7 @@ class GameScene(scene.Scene):
 			director.pop()
 		elif symbol == pyglet.window.key.P:
 			self.paused = not self.paused
-		elif symbol == pyglet.window.key.M:
+		elif symbol == pyglet.window.key.TAB:
 			director.push(map.map_scene)
 		elif not self.paused:
 			ecsm.on_key_press(symbol, modifiers)

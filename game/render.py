@@ -123,6 +123,7 @@ class GameEcsRenderer(ecs.EcsRenderer):
 		ty = self.ty
 		area = (tx, ty, const.WIDTH, const.HEIGHT)
 
+		gl.glPointSize( 1.5 );
 		self.starfield.draw(tx, ty)
 
 		gl.glPushMatrix()
@@ -174,9 +175,9 @@ class GameEcsRenderer(ecs.EcsRenderer):
 	                          color=(0, 255, 0, 255))
 					label.draw()
 
-				#gc = grav_comp_list[idx]
-				#if gc and gc.gravity_radius:
-				#	draw_circle(physc.pos.x, physc.pos.y, gc.gravity_radius, None, gl.GL_LINE_LOOP)
+				gc = grav_comp_list[idx]
+				if gc and gc.gravity_radius:
+					draw_circle(physc.pos.x, physc.pos.y, gc.gravity_radius, None, gl.GL_LINE_LOOP)
 
 		gl.glPopMatrix()
 

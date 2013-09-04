@@ -17,7 +17,7 @@ import render
 
 map_scene = None
 
-ZOOM = 0.09
+ZOOM = 0.06
 
 def init():
 	global map_scene
@@ -34,8 +34,24 @@ class MapScene(scene.Scene):
 	def exit(self):
 		pass
 
+	def _draw_grid(self):
+		gl.glColor3f(0, 0, 1)
+		for i in xrange(0, const.WIDTH, 50):
+				gl.glBegin(gl.GL_LINES)
+				gl.glVertex2f(i, 0.0)
+				gl.glVertex2f(i, const.HEIGHT)
+				gl.glEnd()
+
+		for i in xrange(0, const.HEIGHT, 50):
+				gl.glBegin(gl.GL_LINES)
+				gl.glVertex2f(0.0, i)
+				gl.glVertex2f(const.WIDTH, i)
+				gl.glEnd()
+
 	def draw(self):
 		ecsm = game.ecsm
+
+		self._draw_grid()
 
 		phys_comp_list = ecsm.comps[phys.PhysicsEcsComponent.name()]
 		grav_comp_list = ecsm.comps[phys.GravityEcsComponent.name()]
@@ -49,6 +65,19 @@ class MapScene(scene.Scene):
 
 		player_entity_id = ecsm.get_system(player.PlayerEscSystem.name()).player_entity_id
 		player_physc = ecsm.get_entity_comp(player_entity_id, phys.PhysicsEcsComponent.name())
+
+		gl.glColor3f(0, 0, 1)
+		for i in xrange(0, const.WIDTH, 50):
+				gl.glBegin(gl.GL_LINES)
+				gl.glVertex2f(i, 0.0)
+				gl.glVertex2f(i, const.HEIGHT)
+				gl.glEnd()
+
+		for i in xrange(0, const.HEIGHT, 50):
+				gl.glBegin(gl.GL_LINES)
+				gl.glVertex2f(0.0, i)
+				gl.glVertex2f(const.WIDTH, i)
+				gl.glEnd()
 
 		gl.glPushMatrix()
 		gl.glLoadIdentity()
@@ -73,11 +102,15 @@ class MapScene(scene.Scene):
 				if planetc.pname:
 					label = pyglet.text.Label(planetc.pname,
 	                          font_name=font.FONT_MONO.name,
-	                          font_size=9,
-	                          x=physc.pos.x * ZOOM, y=physc.pos.y * ZOOM - ((collc.radius + 100) * ZOOM ), #  + collc.radius + 5
+	                          font_size=10,
+	                          x=physc.pos.x * ZOOM, y=physc.pos.y * ZOOM - ((collc.radius + 130) * ZOOM ), #  + collc.radius + 5
 	                          anchor_x='center', anchor_y='center',
 	                          color=(0, 255, 0, 255))
 					label.draw()
+
+				gc = grav_comp_list[idx]
+				if gc and gc.gravity_radius:
+					render.draw_circle(physc.pos.x * ZOOM, physc.pos.y * ZOOM, gc.gravity_radius * ZOOM, None, gl.GL_LINE_LOOP)
 
 		# show player position
 		
@@ -87,15 +120,13 @@ class MapScene(scene.Scene):
 		gl.glPopMatrix()
 
 	def update(self, dt):
-		pass
+		if not director.keys[pyglet.window.key.TAB]:
+			director.pop()
 
 	def on_key_press(self, symbol, modifiers):
-		if symbol == pyglet.window.key.ESCAPE:
-			director.pop()
-		#elif symbol == pyglet.window.key.P:
-		#	self.paused = not self.paused
-		#elif not self.paused:
-		#	ecsm.on_key_press(symbol, modifiers)
+		pass
+		#if symbol == pyglet.window.key.ESCAPE:
+		#	director.pop()
 
 	def on_mouse_press(self, x, y, button, modifiers):
 		pass
