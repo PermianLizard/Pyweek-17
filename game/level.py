@@ -12,39 +12,57 @@ import render
 
 
 SUN_SIZES = [120, 128]
-PLANET_SIZES = [32, 40, 48, 56, 64, 72, 80, 88]
+PLANET_SIZES = [56, 64, 72, 80]
+#PLANET_SIZES = [32, 40, 48, 56, 64, 72, 80, 88]
 MOON_SIZES = [16, 24]
 
 POSITION_ANGLES = [i for i in xrange(0, 360, 45)]
+print POSITION_ANGLES
 
 NAMES = ['Tamande', 'Yolus', 'Tar-ogg', 'Marduk', 'Eileen', 'Silias', 'Addren', 'Aggo', 'Teim', 'Tamut']
 NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX']
 
+PLANETS_MIN = 6
+PLANETS_MAX = 7
+
 PLANET_DISTANCE_MIN = 400
 PLANET_DISTANCE_MAX = 600
 
+# multiplier for how big a planet's gravity radius is (compared to max distance)
+GRAV_RADIUS_MOD = 0.9
+# min size of planets that have moons
+MIN_MOON_PLANET_SIZE = 56
+
+# multiplier giving a planet's mass (relative to its size)
+MASS_MOD = 10000
 
 def create_sun(ecsm, name):
 	size = random.choice(SUN_SIZES)	
-	mass = size * 10000
+	mass = size * MASS_MOD
 
-	grav_radius = PLANET_DISTANCE_MAX * 0.6
+	grav_radius = PLANET_DISTANCE_MAX * GRAV_RADIUS_MOD
 
-	return ecsm.create_entity([phys.PhysicsEcsComponent(-200, 0, mass, True), 
+	return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, mass, True), 
 			phys.GravityEcsComponent(grav_radius),
 			coll.CollisionEcsComponent(size),
 			planet.PlanetEcsComponent(name),
 			render.RenderPlanetEcsComponent()])
 
+def create_player_ship(ecsm):
+	return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, 10, False),
+			coll.CollisionEcsComponent(14), 
+			player.PlayerIdentityEcsComponent(), 
+			ship.ShipEcsComponent(90.0, 6, 30.0),
+			render.RenderShipEcsComponent()])
 
-def create_planet(ecsm, name, distance, angle):
+def create_planet(ecsm, name, distance, angle, suppress_moons=False):
 	posv = vec2d.vec2d(distance, 0)
 	posv.rotate(angle)
 
 	size = random.choice(PLANET_SIZES)	
-	mass = size * 10000 # TODO density
+	mass = size * MASS_MOD # TODO density
 
-	grav_radius = PLANET_DISTANCE_MAX * 0.9
+	grav_radius = PLANET_DISTANCE_MAX * GRAV_RADIUS_MOD
 
 	planet_id = ecsm.create_entity([phys.PhysicsEcsComponent(posv.x, posv.y, mass, True), 
 			phys.GravityEcsComponent(grav_radius),
@@ -53,13 +71,13 @@ def create_planet(ecsm, name, distance, angle):
 			render.RenderPlanetEcsComponent()])
 
 	# give this planet some satellites
-	if size >= 56:		
+	if size >= MIN_MOON_PLANET_SIZE and not suppress_moons:		
 		moons = random.randint(0, 2)
 		available_angles = POSITION_ANGLES[:]
 
 		for mi in xrange(moons):
 			size = random.choice(MOON_SIZES)	
-			mass = size * 10000 # TODO density
+			mass = size * MASS_MOD # TODO density
 
 			grav_radius = PLANET_DISTANCE_MAX // 8
 
@@ -69,29 +87,41 @@ def create_planet(ecsm, name, distance, angle):
 				planet.PlanetEcsComponent(''),
 				render.RenderPlanetEcsComponent()])
 
-			distance = PLANET_DISTANCE_MAX // 4 + ((PLANET_DISTANCE_MAX // 4) * mi) - 30
+			distance = PLANET_DISTANCE_MAX // 3 + ((PLANET_DISTANCE_MAX // 3) * mi) - 30
 			angle = random.choice(available_angles)
 			available_angles.remove(angle)
 
 			ecsm.get_system(phys.PhysicsEcsSystem.name()).set_orbit(moon_id, planet_id, distance, angle, True)
 
+	return planet_id
 
-def generate(ecsm):
+
+def generate_system(ecsm):
 	available_names = NAMES[:]
 
-	planet_ids = []
 	available_angles = POSITION_ANGLES[:]
 
-	distance = PLANET_DISTANCE_MIN * 1.5
-	for planet_system_id in xrange(random.randint(9, 10)):
-		if planet_system_id == 0:
-			planet_id = create_sun(ecsm, 'Sol')
+	planet_ids = []
+
+	distance = PLANET_DISTANCE_MIN * 1.5 # place a little further away from the sun
+	for planet_gen_id in xrange(random.randint(PLANETS_MIN, PLANETS_MIN + 1)):
+		# sun
+		if planet_gen_id == 0:
+			planet_ids.append(create_sun(ecsm, 'Sol'))
+		# planets
 		else:
+			suppress_moons = False
+			if planet_gen_id == 1:
+				suppress_moons = True
 			distance += random.randint(PLANET_DISTANCE_MIN, PLANET_DISTANCE_MAX)
 			angle = random.choice(available_angles)
 			available_angles.remove(angle)
 			name = random.choice(available_names)
 			available_names.remove(name)
-			planet_id = create_planet(ecsm, name, distance, angle)
+			planet_ids.append(create_planet(ecsm, name, distance, angle, suppress_moons))
 
-		planet_ids.append(planet_id)
+	home_planet = planet_ids[1]
+
+	player_ship_id = create_player_ship(ecsm)
+
+	ecsm.get_system(phys.PhysicsEcsSystem.name()).set_orbit(player_ship_id, home_planet, 300, 0, True)

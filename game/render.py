@@ -58,6 +58,8 @@ class RenderShipEcsComponent(ecs.EcsComponent):
 	def __init__(self):
 		super(RenderShipEcsComponent, self).__init__()
 
+		self.spr = pyglet.sprite.Sprite(img.get(img.IMG_SHIP))
+
 	def __str__(self):
 		return 'RenderShipEcsComponent'
 
@@ -108,10 +110,10 @@ class GameEcsRenderer(ecs.EcsRenderer):
 
 		entities = self.manager.entities
 		for idx, eid in enumerate(entities):
-			planetc = planet_comp_list[idx]
-
-			if planetc:
-				rpc = rend_plan_comp_list[idx]
+			pass
+			#planetc = planet_comp_list[idx]
+			#if planetc:
+			#	rpc = rend_plan_comp_list[idx]
 
 	def draw(self):
 		ppc = self.manager.get_entity_comp(self.player_entity_id, phys.PhysicsEcsComponent.name())
@@ -149,17 +151,23 @@ class GameEcsRenderer(ecs.EcsRenderer):
 			if shipc:
 				rsc = rend_ship_comp_list[idx]	
 
-				draw_circle(physc.pos.x, physc.pos.y, collc.radius, None, gl.GL_POLYGON, (1, 1, 0, 1))
+				#draw_circle(physc.pos.x, physc.pos.y, collc.radius, None, gl.GL_POLYGON, (1, 1, 0, 1))
 
-				dir_radians = math.radians(shipc.rotation)
-				dirv = vec2d.vec2d(math.cos(dir_radians), math.sin(dir_radians))
-				dirv.length = collc.radius
+				ship_sprite = rsc.spr
+				ship_sprite.x = physc.pos.x
+				ship_sprite.y = physc.pos.y
+				ship_sprite.rotation = -shipc.rotation
+				ship_sprite.draw()				
 
-				gl.glColor3f(1, 0, 0, 1)
-				gl.glBegin(gl.GL_LINES)
-				gl.glVertex2f(physc.pos.x, physc.pos.y)
-				gl.glVertex2f(physc.pos.x + dirv.x, physc.pos.y + dirv.y)
-				gl.glEnd()
+				#dir_radians = math.radians(shipc.rotation)
+				#dirv = vec2d.vec2d(math.cos(dir_radians), math.sin(dir_radians))
+				#dirv.length = collc.radius
+
+				#gl.glColor3f(1, 0, 0, 1)
+				#gl.glBegin(gl.GL_LINES)
+				#gl.glVertex2f(physc.pos.x, physc.pos.y)
+				#gl.glVertex2f(physc.pos.x + dirv.x, physc.pos.y + dirv.y)
+				#gl.glEnd()
 
 			elif planetc:
 				rpc = rend_plan_comp_list[idx]

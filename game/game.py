@@ -47,14 +47,7 @@ class GameEcsManager(ecs.EcsManager):
 
 	def init(self):
 
-		level.generate(ecsm)
-
-		player_ship = ecsm.create_entity([phys.PhysicsEcsComponent(300, 300, 10, False),
-				coll.CollisionEcsComponent(12), 
-				player.PlayerIdentityEcsComponent(), 
-				ship.ShipEcsComponent(90.0, 6, 10.0),
-				render.RenderShipEcsComponent()])
-		#self.get_system(phys.PhysicsEcsSystem.name()).set_orbit(player_ship, planet1, 120, 0, True)
+		level.generate_system(ecsm)
 
 		super(GameEcsManager, self).init()
 
