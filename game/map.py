@@ -34,24 +34,8 @@ class MapScene(scene.Scene):
 	def exit(self):
 		pass
 
-	def _draw_grid(self):
-		gl.glColor3f(0, 0, 1)
-		for i in xrange(0, const.WIDTH, 50):
-				gl.glBegin(gl.GL_LINES)
-				gl.glVertex2f(i, 0.0)
-				gl.glVertex2f(i, const.HEIGHT)
-				gl.glEnd()
-
-		for i in xrange(0, const.HEIGHT, 50):
-				gl.glBegin(gl.GL_LINES)
-				gl.glVertex2f(0.0, i)
-				gl.glVertex2f(const.WIDTH, i)
-				gl.glEnd()
-
 	def draw(self):
 		ecsm = game.ecsm
-
-		self._draw_grid()
 
 		phys_comp_list = ecsm.comps[phys.PhysicsEcsComponent.name()]
 		grav_comp_list = ecsm.comps[phys.GravityEcsComponent.name()]
@@ -66,26 +50,33 @@ class MapScene(scene.Scene):
 		player_entity_id = ecsm.get_system(player.PlayerEscSystem.name()).player_entity_id
 		player_physc = ecsm.get_entity_comp(player_entity_id, phys.PhysicsEcsComponent.name())
 
-		gl.glColor3f(0, 0, 1)
-		for i in xrange(0, const.WIDTH, 50):
-				gl.glBegin(gl.GL_LINES)
-				gl.glVertex2f(i, 0.0)
-				gl.glVertex2f(i, const.HEIGHT)
-				gl.glEnd()
-
-		for i in xrange(0, const.HEIGHT, 50):
-				gl.glBegin(gl.GL_LINES)
-				gl.glVertex2f(0.0, i)
-				gl.glVertex2f(const.WIDTH, i)
-				gl.glEnd()
+		if player_physc:
+			tx = (-player_physc.pos.x * ZOOM) + const.WIDTH // 2
+			ty = (-player_physc.pos.y * ZOOM) + const.HEIGHT // 2
+		else:
+			tx = const.WIDTH // 2
+			ty = const.HEIGHT // 2
 
 		gl.glPushMatrix()
 		gl.glLoadIdentity()
 
-		if player_physc:
-			gl.glTranslatef((-player_physc.pos.x * ZOOM) + const.WIDTH // 2, (-player_physc.pos.y * ZOOM) + const.HEIGHT // 2, 0.0)
-		else:
-			gl.glTranslatef(const.WIDTH // 2, const.HEIGHT // 2, 0.0)
+		gl.glTranslatef(tx, ty, 0.0)
+
+		#gl.glColor3f(0, 0, 1)
+		#for i in xrange(0, int(const.WIDTH // 2), int(500 * ZOOM)):
+		#for i in xrange(int(tx - const.WIDTH // 2), int(tx + const.WIDTH // 2)):
+		#	if i % 50 == 0:
+		#		print '?'
+		#		gl.glBegin(gl.GL_LINES)
+		#		gl.glVertex2f(i, 0.0)
+		#		gl.glVertex2f(i, const.HEIGHT)
+		#		gl.glEnd()
+
+		#for i in xrange(0, const.HEIGHT, int(500 * ZOOM)):
+		#		gl.glBegin(gl.GL_LINES)
+		#		gl.glVertex2f(0.0, i)
+		#		gl.glVertex2f(const.WIDTH, i)
+		#		gl.glEnd()
 
 		for idx, eid in enumerate(entities):
 			shipc = ship_comp_list[idx]

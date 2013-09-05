@@ -14,6 +14,7 @@ import coll
 import player
 import planet
 import ship
+import asteroid
 
 import starfield
 
@@ -76,6 +77,18 @@ class RenderPlanetEcsComponent(ecs.EcsComponent):
 	def __str__(self):
 		return 'RenderPlanetEcsComponent'
 
+class RenderAsteroidEcsComponent(ecs.EcsComponent):
+
+	@classmethod
+	def name(cls):
+		return 'render-asteroid-component'
+
+	def __init__(self):
+		super(RenderAsteroidEcsComponent, self).__init__()
+
+	def __str__(self):
+		return 'RenderAsteroidEcsComponent'
+
 
 class GameEcsRenderer(ecs.EcsRenderer):
 
@@ -137,12 +150,15 @@ class GameEcsRenderer(ecs.EcsRenderer):
 		coll_comp_list = self.manager.comps[coll.CollisionEcsComponent.name()]
 		planet_comp_list = self.manager.comps[planet.PlanetEcsComponent.name()]
 		ship_comp_list = self.manager.comps[ship.ShipEcsComponent.name()]
+		aster_comp_list = self.manager.comps[asteroid.AsteroidEcsComponent.name()]
 		rend_plan_comp_list = self.manager.comps[RenderPlanetEcsComponent.name()]
 		rend_ship_comp_list = self.manager.comps[RenderShipEcsComponent.name()]
+		rend_aster_comp_list = self.manager.comps[RenderAsteroidEcsComponent.name()]
 
 		entities = self.manager.entities
 		for idx, eid in enumerate(entities):
 			shipc = ship_comp_list[idx]
+			asterc = aster_comp_list[idx]
 			planetc = planet_comp_list[idx]
 
 			physc = phys_comp_list[idx]
@@ -186,6 +202,10 @@ class GameEcsRenderer(ecs.EcsRenderer):
 				gc = grav_comp_list[idx]
 				if gc and gc.gravity_radius:
 					draw_circle(physc.pos.x, physc.pos.y, gc.gravity_radius, None, gl.GL_LINE_LOOP)
+
+			elif asterc:
+				rac = rend_aster_comp_list[idx]
+				draw_circle(physc.pos.x, physc.pos.y, collc.radius, None, gl.GL_POLYGON, (0, 1, 0, 1))
 
 		gl.glPopMatrix()
 

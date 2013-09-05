@@ -3,7 +3,7 @@ import math
 from plib import vec2d
 from plib import ecs
 
-GRAV_CONSTANT = 1
+GRAV_CONSTANT = 2
 SPEED_LIMIT = 180
 
 

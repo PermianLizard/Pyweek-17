@@ -20,7 +20,6 @@ class EcsComponent(object):
 	def __str__(self):
 		return 'EcsComponent'
 
-
 class EcsSystem(object):
 
 	@classmethod
@@ -183,8 +182,8 @@ class EcsManager(pyglet.event.EventDispatcher):
 		for renderer in self.renderers.values():
 			self.push_handlers(renderer)
 
-		for input_handler in self.input_handlers.values():
-			self.push_handlers(input_handler)
+		#for input_handler in self.input_handlers.values():
+		#	self.push_handlers(input_handler)
 
 	def init(self):
 		for system in self.systems.values():

@@ -35,6 +35,9 @@ class CollisionEcsSystem(ecs.EcsSystem):
 
 		entities_to_remove = set()
 
+		# we use this guy to keep track of the collision 'matrix'
+		entity_collision_dict = {}
+
 		entities = self.manager.entities
 		for idx, eid in enumerate(entities):
 			physc = phys_comp_list[idx]
@@ -59,14 +62,24 @@ class CollisionEcsSystem(ecs.EcsSystem):
 				d = physc.pos.get_distance(ophysc.pos)
 				coll_d = collc.radius + ocollc.radius
 
-				if d <= coll_d:
-					if not planetc:
-						entities_to_remove.add(eid)
-					if not oplanetc:
-						entities_to_remove.add(oeid)
+				if d <= coll_d: # collision
 
-		for eid in entities_to_remove:
-			self.manager.remove_entity(eid, CollisionEcsSystem.name(), 'collision')
+					e_coll_list = entity_collision_dict.setdefault(eid, [])
+					if oeid not in e_coll_list:
+						e_coll_list.append(oeid)
+						entity_collision_dict.setdefault(oeid, []).append(eid)
+						self.manager.entity_collision(eid, oeid, CollisionEcsSystem.name(), 'collision')
+						#entities_to_remove.add(eid)
+						#entities_to_remove.add(oeid)
+					#else:
+						#self.manager.on_entity_collision(eid, oeid, CollisionEcsSystem.name(), 'collision')
+						#if not planetc:
+						#	entities_to_remove.add(eid)
+						#if not oplanetc:
+						#	entities_to_remove.add(oeid)
+
+		#for eid in entities_to_remove:
+			#self.manager.remove_entity(eid, CollisionEcsSystem.name(), 'collision')
 
 	def on_pre_remove_entity(self, eid, system_name, event):
 		pass

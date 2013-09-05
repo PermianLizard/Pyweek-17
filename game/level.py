@@ -8,6 +8,7 @@ import coll
 import player
 import planet
 import ship
+import asteroid
 import render
 
 
@@ -47,13 +48,6 @@ def create_sun(ecsm, name):
 			coll.CollisionEcsComponent(size),
 			planet.PlanetEcsComponent(name),
 			render.RenderPlanetEcsComponent()])
-
-def create_player_ship(ecsm):
-	return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, 10, False),
-			coll.CollisionEcsComponent(14), 
-			player.PlayerIdentityEcsComponent(), 
-			ship.ShipEcsComponent(90.0, 6, 30.0),
-			render.RenderShipEcsComponent()])
 
 def create_planet(ecsm, name, distance, angle, suppress_moons=False):
 	posv = vec2d.vec2d(distance, 0)
@@ -95,6 +89,18 @@ def create_planet(ecsm, name, distance, angle, suppress_moons=False):
 
 	return planet_id
 
+def create_player_ship(ecsm):
+	return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, 10, False),
+			coll.CollisionEcsComponent(14), 
+			player.PlayerIdentityEcsComponent(), 
+			ship.ShipEcsComponent(90.0, 6, 20.0),
+			render.RenderShipEcsComponent()])
+
+def create_asteroid(ecsm):
+	return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, 10, False),
+			coll.CollisionEcsComponent(14), 
+			asteroid.AsteroidEcsComponent(),
+			render.RenderShipEcsComponent()])
 
 def generate_system(ecsm):
 	available_names = NAMES[:]
@@ -123,5 +129,8 @@ def generate_system(ecsm):
 	home_planet = planet_ids[1]
 
 	player_ship_id = create_player_ship(ecsm)
+	a_id = create_asteroid(ecsm)
 
-	ecsm.get_system(phys.PhysicsEcsSystem.name()).set_orbit(player_ship_id, home_planet, 300, 0, True)
+	ecsm.get_system(phys.PhysicsEcsSystem.name()).set_orbit(player_ship_id, home_planet, 300, 0, False)
+
+	ecsm.get_system(phys.PhysicsEcsSystem.name()).set_orbit(a_id, home_planet, 340, 0, False)

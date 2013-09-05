@@ -47,3 +47,13 @@ class ShipEcsSystem(ecs.EcsSystem):
 		dirv.length = sc.thrust_force
 
 		pc.apply_force(dirv.x, dirv.y)
+
+	def on_entity_collision(self, e1id, e2id, system_name, event):
+		e1sc = self.manager.get_entity_comp(e1id, ShipEcsComponent.name())
+		e2sc = self.manager.get_entity_comp(e2id, ShipEcsComponent.name())
+
+		if e1sc:
+			self.manager.mark_entity_for_deletion(e1id)
+
+		if e2sc:
+			self.manager.mark_entity_for_deletion(e2id)
