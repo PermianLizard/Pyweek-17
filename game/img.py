@@ -5,9 +5,10 @@ import start
 
 IMG_HUD = 'hud.png'
 IMG_SHIP = 'ship.png'
+IMG_BG = 'starbg.png'
 
-img_name_list = [IMG_HUD, IMG_SHIP]
-img_center_list = [True, True]
+img_name_list = [IMG_HUD, IMG_SHIP, IMG_BG]
+img_center_list = [True, True, False]
 img_dict = {}
 
 def init():

@@ -18,7 +18,7 @@ class PhysicsEcsComponent(ecs.EcsComponent):
 		self.pos = vec2d.vec2d(x, y)
 		self.vel = vec2d.vec2d(0, 0)
 		self.acc = vec2d.vec2d(0, 0)
-		self.mass = mass
+		self.mass = float(mass)
 		self.static = static
 
 	def apply_force(self, x, y):

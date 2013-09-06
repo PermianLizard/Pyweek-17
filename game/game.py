@@ -45,9 +45,9 @@ class GameEcsManager(ecs.EcsManager):
 		self.reg_comp_type(planet.PlanetEcsComponent.name())
 		self.reg_comp_type(ship.ShipEcsComponent.name())
 		self.reg_comp_type(asteroid.AsteroidEcsComponent.name())
-		self.reg_comp_type(render.RenderPlanetEcsComponent.name())		
-		self.reg_comp_type(render.RenderShipEcsComponent.name())
-		self.reg_comp_type(render.RenderAsteroidEcsComponent.name())
+		self.reg_comp_type(planet.RenderPlanetEcsComponent.name())		
+		self.reg_comp_type(ship.RenderShipEcsComponent.name())
+		self.reg_comp_type(asteroid.RenderAsteroidEcsComponent.name())
 
 	def init(self):
 		level.generate_system(ecsm)
@@ -56,11 +56,15 @@ class GameEcsManager(ecs.EcsManager):
 
 		self._entities_to_remove = set()
 
-	def entity_collision(self, e1id, e2id, system_name, event):
-		self.dispatch_event('on_entity_collision', e1id, e2id, system_name, event)
+	def entity_collision(self, e1id, e2id, e1reflect, system_name, event):
+		self.dispatch_event('on_entity_collision', e1id, e2id, e1reflect, system_name, event)
 
-	def mark_entity_for_deletion(self, eid):
+	def mark_entity_for_removal(self, eid):
 		self._entities_to_remove.add(eid)
+
+	def kill_entity(self, eid, system_name='', event=''):
+		self.dispatch_event('on_entity_kill', eid, system_name, event)
+		self.mark_entity_for_removal(eid)
 
 	def update(self, dt):
 		self._entities_to_remove = set()
@@ -72,6 +76,7 @@ class GameEcsManager(ecs.EcsManager):
 		
 
 GameEcsManager.register_event_type('on_entity_collision')
+GameEcsManager.register_event_type('on_entity_kill')
 
 game_scene = None
 ecsm = None 

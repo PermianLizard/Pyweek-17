@@ -15,3 +15,16 @@ class PlanetEcsComponent(ecs.EcsComponent):
 
 	def __str__(self):
 		return 'PlanetEcsComponent'
+
+
+class RenderPlanetEcsComponent(ecs.EcsComponent):
+
+	@classmethod
+	def name(cls):
+		return 'render-planet-component'
+
+	def __init__(self):
+		super(RenderPlanetEcsComponent, self).__init__()
+
+	def __str__(self):
+		return 'RenderPlanetEcsComponent'

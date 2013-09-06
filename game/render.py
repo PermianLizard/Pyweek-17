@@ -50,46 +50,6 @@ def draw_circle(cx, cy, r, num_segments=None, mode=gl.GL_POLYGON, color=(1, 1, 1
 	gl.glEnd()
 
 
-class RenderShipEcsComponent(ecs.EcsComponent):
-
-	@classmethod
-	def name(cls):
-		return 'render-ship-component'
-
-	def __init__(self):
-		super(RenderShipEcsComponent, self).__init__()
-
-		self.spr = pyglet.sprite.Sprite(img.get(img.IMG_SHIP))
-
-	def __str__(self):
-		return 'RenderShipEcsComponent'
-
-
-class RenderPlanetEcsComponent(ecs.EcsComponent):
-
-	@classmethod
-	def name(cls):
-		return 'render-planet-component'
-
-	def __init__(self):
-		super(RenderPlanetEcsComponent, self).__init__()
-
-	def __str__(self):
-		return 'RenderPlanetEcsComponent'
-
-class RenderAsteroidEcsComponent(ecs.EcsComponent):
-
-	@classmethod
-	def name(cls):
-		return 'render-asteroid-component'
-
-	def __init__(self):
-		super(RenderAsteroidEcsComponent, self).__init__()
-
-	def __str__(self):
-		return 'RenderAsteroidEcsComponent'
-
-
 class GameEcsRenderer(ecs.EcsRenderer):
 
 	@classmethod
@@ -119,7 +79,7 @@ class GameEcsRenderer(ecs.EcsRenderer):
 
 	def on_create_entity(self, eid, system_name, event):
 		planet_comp_list = self.manager.comps[planet.PlanetEcsComponent.name()]
-		rend_plan_comp_list = self.manager.comps[RenderPlanetEcsComponent.name()]
+		rend_plan_comp_list = self.manager.comps[planet.RenderPlanetEcsComponent.name()]
 
 		entities = self.manager.entities
 		for idx, eid in enumerate(entities):
@@ -138,7 +98,9 @@ class GameEcsRenderer(ecs.EcsRenderer):
 		ty = self.ty
 		area = (tx, ty, const.WIDTH, const.HEIGHT)
 
-		gl.glPointSize( 1.5 );
+		#img.get(img.IMG_BG).blit(0, 0)
+
+		gl.glPointSize( 1 );
 		self.starfield.draw(tx, ty)
 
 		gl.glPushMatrix()
@@ -151,9 +113,9 @@ class GameEcsRenderer(ecs.EcsRenderer):
 		planet_comp_list = self.manager.comps[planet.PlanetEcsComponent.name()]
 		ship_comp_list = self.manager.comps[ship.ShipEcsComponent.name()]
 		aster_comp_list = self.manager.comps[asteroid.AsteroidEcsComponent.name()]
-		rend_plan_comp_list = self.manager.comps[RenderPlanetEcsComponent.name()]
-		rend_ship_comp_list = self.manager.comps[RenderShipEcsComponent.name()]
-		rend_aster_comp_list = self.manager.comps[RenderAsteroidEcsComponent.name()]
+		rend_plan_comp_list = self.manager.comps[planet.RenderPlanetEcsComponent.name()]
+		rend_ship_comp_list = self.manager.comps[ship.RenderShipEcsComponent.name()]
+		rend_aster_comp_list = self.manager.comps[asteroid.RenderAsteroidEcsComponent.name()]
 
 		entities = self.manager.entities
 		for idx, eid in enumerate(entities):
@@ -167,23 +129,23 @@ class GameEcsRenderer(ecs.EcsRenderer):
 			if shipc:
 				rsc = rend_ship_comp_list[idx]	
 
-				#draw_circle(physc.pos.x, physc.pos.y, collc.radius, None, gl.GL_POLYGON, (1, 1, 0, 1))
+				draw_circle(physc.pos.x, physc.pos.y, collc.radius, None, gl.GL_POLYGON, (1, 1, 0, 1))
 
-				ship_sprite = rsc.spr
-				ship_sprite.x = physc.pos.x
-				ship_sprite.y = physc.pos.y
-				ship_sprite.rotation = -shipc.rotation
-				ship_sprite.draw()				
+				#ship_sprite = rsc.spr
+				#ship_sprite.x = physc.pos.x
+				#ship_sprite.y = physc.pos.y
+				#ship_sprite.rotation = -shipc.rotation
+				#ship_sprite.draw()				
 
-				#dir_radians = math.radians(shipc.rotation)
-				#dirv = vec2d.vec2d(math.cos(dir_radians), math.sin(dir_radians))
-				#dirv.length = collc.radius
+				dir_radians = math.radians(shipc.rotation)
+				dirv = vec2d.vec2d(math.cos(dir_radians), math.sin(dir_radians))
+				dirv.length = collc.radius
 
-				#gl.glColor3f(1, 0, 0, 1)
-				#gl.glBegin(gl.GL_LINES)
-				#gl.glVertex2f(physc.pos.x, physc.pos.y)
-				#gl.glVertex2f(physc.pos.x + dirv.x, physc.pos.y + dirv.y)
-				#gl.glEnd()
+				gl.glColor3f(1, 0, 0, 1)
+				gl.glBegin(gl.GL_LINES)
+				gl.glVertex2f(physc.pos.x, physc.pos.y)
+				gl.glVertex2f(physc.pos.x + dirv.x, physc.pos.y + dirv.y)
+				gl.glEnd()
 
 			elif planetc:
 				rpc = rend_plan_comp_list[idx]

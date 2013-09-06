@@ -1,7 +1,18 @@
+import math
 from plib import ecs
+from plib import vec2d
 import phys
 import ship
 import planet
+
+
+def get_circle_closest_point(pos, cpos, cradius):
+	dv = math.sqrt(math.pow(cpos.x - pos.x, 2) + math.pow(cpos.y - pos.y, 2))
+	cx = cpos.x + (cradius * (pos.x - cpos.x) / dv)
+	cy = cpos.y + (cradius * (pos.y - cpos.y) / dv)
+
+	return vec2d.vec2d(cx, cy)
+
 
 class CollisionEcsComponent(ecs.EcsComponent):
 
@@ -13,9 +24,6 @@ class CollisionEcsComponent(ecs.EcsComponent):
 		super(CollisionEcsComponent, self).__init__()
 
 		self.radius = radius
-		
-	def update(self, dt):
-		pass
 
 
 class CollisionEcsSystem(ecs.EcsSystem):
@@ -30,8 +38,6 @@ class CollisionEcsSystem(ecs.EcsSystem):
 	def update(self, dt):
 		phys_comp_list = self.manager.comps[phys.PhysicsEcsComponent.name()]
 		coll_comp_list = self.manager.comps[CollisionEcsComponent.name()]
-		ship_comp_list = self.manager.comps[ship.ShipEcsComponent.name()]
-		planet_comp_list = self.manager.comps[planet.PlanetEcsComponent.name()]
 
 		entities_to_remove = set()
 
@@ -42,8 +48,6 @@ class CollisionEcsSystem(ecs.EcsSystem):
 		for idx, eid in enumerate(entities):
 			physc = phys_comp_list[idx]
 			collc = coll_comp_list[idx]
-			shipc = ship_comp_list[idx]
-			planetc = planet_comp_list[idx]
 
 			if physc == None or collc == None:
 				continue
@@ -53,8 +57,6 @@ class CollisionEcsSystem(ecs.EcsSystem):
 
 				ophysc = phys_comp_list[oidx]
 				ocollc = coll_comp_list[oidx]
-				oshipc = ship_comp_list[oidx]
-				oplanetc = planet_comp_list[oidx]
 
 				if ophysc == None or ocollc == None:
 					continue
@@ -63,23 +65,44 @@ class CollisionEcsSystem(ecs.EcsSystem):
 				coll_d = collc.radius + ocollc.radius
 
 				if d <= coll_d: # collision
-
 					e_coll_list = entity_collision_dict.setdefault(eid, [])
 					if oeid not in e_coll_list:
 						e_coll_list.append(oeid)
 						entity_collision_dict.setdefault(oeid, []).append(eid)
-						self.manager.entity_collision(eid, oeid, CollisionEcsSystem.name(), 'collision')
-						#entities_to_remove.add(eid)
-						#entities_to_remove.add(oeid)
-					#else:
-						#self.manager.on_entity_collision(eid, oeid, CollisionEcsSystem.name(), 'collision')
-						#if not planetc:
-						#	entities_to_remove.add(eid)
-						#if not oplanetc:
-						#	entities_to_remove.add(oeid)
 
-		#for eid in entities_to_remove:
-			#self.manager.remove_entity(eid, CollisionEcsSystem.name(), 'collision')
+						overlap = coll_d - d
+
+						# resolve the collision
+						dir = ophysc.pos- physc.pos
+
+						if physc.static:
+							dir.length = overlap
+							ophysc.pos = ophysc.pos + dir * 2
+						elif ophysc.static:
+							dir.length = overlap
+							physc.pos = ophysc.pos + dir * 2
+						else:
+							dir.length = overlap / 2
+							physc.pos = physc.pos - dir * 2
+							ophysc.pos = ophysc.pos + dir * 2
+
+						# calculate reflection here
+						ocontact_point = get_circle_closest_point(physc.pos, ophysc.pos, ocollc.radius)
+						normal = vec2d.vec2d(ocontact_point.x - ophysc.pos.x, ocontact_point.y - ophysc.pos.y).normalized()
+
+						incidence = (physc.vel) - (ophysc.vel)
+
+						mtotal = physc.mass + ophysc.mass
+						c1 = physc.mass / mtotal
+						c2 = ophysc.mass / mtotal
+
+						r = incidence - (2 * incidence.dot(normal)) * normal
+
+						# some kind of friction
+						#frict = r.length / abs(r.get_angle_between(normal))
+
+						self.manager.entity_collision(eid, oeid, r * c2, CollisionEcsSystem.name(), 'collision')
+						self.manager.entity_collision(oeid, eid, ~r * c1, CollisionEcsSystem.name(), 'collision')
 
 	def on_pre_remove_entity(self, eid, system_name, event):
 		pass

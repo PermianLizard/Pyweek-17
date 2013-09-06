@@ -42,8 +42,8 @@ class MapScene(scene.Scene):
 		coll_comp_list = ecsm.comps[coll.CollisionEcsComponent.name()]
 		planet_comp_list = ecsm.comps[planet.PlanetEcsComponent.name()]
 		ship_comp_list = ecsm.comps[ship.ShipEcsComponent.name()]
-		rend_plan_comp_list = ecsm.comps[render.RenderPlanetEcsComponent.name()]
-		rend_ship_comp_list = ecsm.comps[render.RenderShipEcsComponent.name()]
+		rend_plan_comp_list = ecsm.comps[planet.RenderPlanetEcsComponent.name()]
+		rend_ship_comp_list = ecsm.comps[ship.RenderShipEcsComponent.name()]
 
 		entities = ecsm.entities
 

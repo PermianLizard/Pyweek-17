@@ -1,7 +1,11 @@
 import math
+import pyglet
 from plib import vec2d
 from plib import ecs
+
 import phys
+import img
+import planet
 
 
 class ShipEcsComponent(ecs.EcsComponent):
@@ -19,6 +23,22 @@ class ShipEcsComponent(ecs.EcsComponent):
 
 	def __str__(self):
 		return 'ShipEcsComponent'
+
+
+class RenderShipEcsComponent(ecs.EcsComponent):
+
+	@classmethod
+	def name(cls):
+		return 'render-ship-component'
+
+	def __init__(self):
+		super(RenderShipEcsComponent, self).__init__()
+
+		self.spr = pyglet.sprite.Sprite(img.get(img.IMG_SHIP))
+
+	def __str__(self):
+		return 'RenderShipEcsComponent'
+
 
 class ShipEcsSystem(ecs.EcsSystem):
 	@classmethod
@@ -48,12 +68,19 @@ class ShipEcsSystem(ecs.EcsSystem):
 
 		pc.apply_force(dirv.x, dirv.y)
 
-	def on_entity_collision(self, e1id, e2id, system_name, event):
+	def on_entity_collision(self, e1id, e2id, e1reflect, system_name, event):
 		e1sc = self.manager.get_entity_comp(e1id, ShipEcsComponent.name())
 		e2sc = self.manager.get_entity_comp(e2id, ShipEcsComponent.name())
 
 		if e1sc:
-			self.manager.mark_entity_for_deletion(e1id)
+			if self.manager.get_entity_comp(e2id, planet.PlanetEcsComponent.name()):
+				self.manager.kill_entity(e1id)
 
-		if e2sc:
-			self.manager.mark_entity_for_deletion(e2id)
+			e1pc = self.manager.get_entity_comp(e1id, phys.PhysicsEcsComponent.name())
+			e1pc.vel += e1reflect
+
+		#	if (e1pc.vel - e2pc.vel).length > 40:
+		#		self.manager.kill_entity(e1id)
+
+	def on_entity_kill(self, eid, system_name, event):
+		pass

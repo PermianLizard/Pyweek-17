@@ -18,7 +18,6 @@ PLANET_SIZES = [56, 64, 72, 80]
 MOON_SIZES = [16, 24]
 
 POSITION_ANGLES = [i for i in xrange(0, 360, 45)]
-print POSITION_ANGLES
 
 NAMES = ['Tamande', 'Yolus', 'Tar-ogg', 'Marduk', 'Eileen', 'Silias', 'Addren', 'Aggo', 'Teim', 'Tamut']
 NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX']
@@ -47,7 +46,7 @@ def create_sun(ecsm, name):
 			phys.GravityEcsComponent(grav_radius),
 			coll.CollisionEcsComponent(size),
 			planet.PlanetEcsComponent(name),
-			render.RenderPlanetEcsComponent()])
+			planet.RenderPlanetEcsComponent()])
 
 def create_planet(ecsm, name, distance, angle, suppress_moons=False):
 	posv = vec2d.vec2d(distance, 0)
@@ -62,7 +61,7 @@ def create_planet(ecsm, name, distance, angle, suppress_moons=False):
 			phys.GravityEcsComponent(grav_radius),
 			coll.CollisionEcsComponent(size),
 			planet.PlanetEcsComponent(name),
-			render.RenderPlanetEcsComponent()])
+			planet.RenderPlanetEcsComponent()])
 
 	# give this planet some satellites
 	if size >= MIN_MOON_PLANET_SIZE and not suppress_moons:		
@@ -79,7 +78,7 @@ def create_planet(ecsm, name, distance, angle, suppress_moons=False):
 				phys.GravityEcsComponent(grav_radius), # why this no work!?
 				coll.CollisionEcsComponent(size),
 				planet.PlanetEcsComponent(''),
-				render.RenderPlanetEcsComponent()])
+				planet.RenderPlanetEcsComponent()])
 
 			distance = PLANET_DISTANCE_MAX // 3 + ((PLANET_DISTANCE_MAX // 3) * mi) - 30
 			angle = random.choice(available_angles)
@@ -90,17 +89,17 @@ def create_planet(ecsm, name, distance, angle, suppress_moons=False):
 	return planet_id
 
 def create_player_ship(ecsm):
-	return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, 10, False),
+	return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, 100, False),
 			coll.CollisionEcsComponent(14), 
 			player.PlayerIdentityEcsComponent(), 
-			ship.ShipEcsComponent(90.0, 6, 20.0),
-			render.RenderShipEcsComponent()])
+			ship.ShipEcsComponent(90.0, 6, 500.0),
+			ship.RenderShipEcsComponent()])
 
 def create_asteroid(ecsm):
-	return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, 10, False),
+	return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, 1000, False),
 			coll.CollisionEcsComponent(14), 
 			asteroid.AsteroidEcsComponent(),
-			render.RenderShipEcsComponent()])
+			asteroid.RenderAsteroidEcsComponent()])
 
 def generate_system(ecsm):
 	available_names = NAMES[:]
