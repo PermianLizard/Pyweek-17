@@ -13,11 +13,13 @@ import coll
 import player
 import planet
 import ship
+import base
 import render
 
 map_scene = None
 
 ZOOM = 0.04
+TOKEN_SIZE = 50
 
 def init():
 	global map_scene
@@ -42,8 +44,9 @@ class MapScene(scene.Scene):
 		coll_comp_list = ecsm.comps[coll.CollisionEcsComponent.name()]
 		planet_comp_list = ecsm.comps[planet.PlanetEcsComponent.name()]
 		ship_comp_list = ecsm.comps[ship.ShipEcsComponent.name()]
-		rend_plan_comp_list = ecsm.comps[planet.RenderPlanetEcsComponent.name()]
-		rend_ship_comp_list = ecsm.comps[ship.RenderShipEcsComponent.name()]
+		base_comp_list = ecsm.comps[base.BaseEcsComponent.name()]
+		#rend_plan_comp_list = ecsm.comps[planet.RenderPlanetEcsComponent.name()]
+		#rend_ship_comp_list = ecsm.comps[ship.RenderShipEcsComponent.name()]
 
 		entities = ecsm.entities
 
@@ -80,33 +83,37 @@ class MapScene(scene.Scene):
 
 		for idx, eid in enumerate(entities):
 			shipc = ship_comp_list[idx]
+			basec = base_comp_list[idx]
 			planetc = planet_comp_list[idx]
 
 			physc = phys_comp_list[idx]
 			collc = coll_comp_list[idx]
 
+			if basec:
+				render.draw_circle(physc.pos.x * ZOOM, physc.pos.y * ZOOM, TOKEN_SIZE * ZOOM, color=(1, 1, 0, 1))
+
 			# show planet
-			if planetc:
-				rpc = rend_plan_comp_list[idx]
+			elif planetc:
+				#rpc = rend_plan_comp_list[idx]
 				render.draw_circle(physc.pos.x * ZOOM, physc.pos.y * ZOOM, collc.radius * ZOOM)
 
 				if planetc.pname:
 					label = pyglet.text.Label(planetc.pname,
 	                          font_name=font.FONT_MONO.name,
-	                          font_size=10,
-	                          x=physc.pos.x * ZOOM, y=physc.pos.y * ZOOM - ((collc.radius + 130) * ZOOM ), #  + collc.radius + 5
+	                          font_size=12,
+	                          x=physc.pos.x * ZOOM, y=(physc.pos.y + (collc.radius + 500)) * ZOOM, #  + collc.radius + 5
 	                          anchor_x='center', anchor_y='center',
-	                          color=(0, 255, 0, 255))
+	                          color=(0, 0, 255, 255))
 					label.draw()
 
-				gc = grav_comp_list[idx]
-				if gc and gc.gravity_radius:
-					render.draw_circle(physc.pos.x * ZOOM, physc.pos.y * ZOOM, gc.gravity_radius * ZOOM, None, gl.GL_LINE_LOOP)
+				#gc = grav_comp_list[idx]
+				#if gc and gc.gravity_radius:
+				#	render.draw_circle(physc.pos.x * ZOOM, physc.pos.y * ZOOM, gc.gravity_radius * ZOOM, None, gl.GL_LINE_LOOP)
 
 		# show player position
 		
 		if player_physc:
-			render.draw_circle(player_physc.pos.x * ZOOM, player_physc.pos.y * ZOOM, 30 * ZOOM, color=(1, 0, 0, 1))
+			render.draw_circle(player_physc.pos.x * ZOOM, player_physc.pos.y * ZOOM, TOKEN_SIZE * ZOOM, color=(1, 0, 0, 1))
 
 		gl.glPopMatrix()
 

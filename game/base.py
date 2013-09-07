@@ -18,11 +18,15 @@ class BaseEcsComponent(ecs.EcsComponent):
 	def name(cls):
 		return 'base-component'
 
-	def __init__(self, radius, fuel_load=200):
+	def __init__(self, radius, fuel_load=200, impact_resistance=110.0, health=300):
 		super(BaseEcsComponent, self).__init__()
 
 		self.radius = float(radius)
 		self.fuel_load = fuel_load
+
+		self.impact_resistance = float(impact_resistance)
+		self.health_max = health
+		self.health = health
 
 		self.load_cooldown = 0
 
@@ -52,6 +56,14 @@ class BaseEcsSystem(ecs.EcsSystem):
 
 	def __init__(self):
 		super(BaseEcsSystem, self).__init__()
+
+	def receive_damage(self, eid, amount):
+		bc = self.manager.get_entity_comp(eid, BaseEcsComponent.name())
+		print 'base receive damage', amount
+		bc.health -= amount
+		if bc.health < 0:
+			bc.health = 0
+			self.manager.kill_entity(eid)
 
 	def update(self, dt):
 		# check for a ship in our radius
@@ -90,8 +102,10 @@ class BaseEcsSystem(ecs.EcsSystem):
 		if e1bc:
 			if self.manager.get_entity_comp(e2id, planet.PlanetEcsComponent.name()):
 				self.manager.kill_entity(e1id)
-			#elif impact_size > e1sc.impact_resistance:
-			#	self.manager.kill_entity(e1id)
+			elif impact_size > e1bc.impact_resistance:
+				damage = int(impact_size - e1bc.impact_resistance)
+				if damage > 0:
+					self.receive_damage(e1id, damage)
 			else:
 				e1pc = self.manager.get_entity_comp(e1id, phys.PhysicsEcsComponent.name())
 				e1pc.vel += e1reflect

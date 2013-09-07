@@ -14,10 +14,12 @@ class AsteroidEcsComponent(ecs.EcsComponent):
 	def name(cls):
 		return 'asteroid-component'
 
-	def __init__(self, impact_resistance=110.0):
+	def __init__(self, impact_resistance=110.0, health=300):
 		super(AsteroidEcsComponent, self).__init__()
 
 		self.impact_resistance = float(impact_resistance)
+		self.health_max = health
+		self.health = health
 
 	def __str__(self):
 		return 'AsteroidEcsComponent'
@@ -41,14 +43,16 @@ class AsteroidEcsSystem(ecs.EcsSystem):
 	def name(cls):
 		return 'asteroid-system'
 
-	def create_random(self, x, y, direction_angle, speed):
-		return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, 10, False),
-			coll.CollisionEcsComponent(14), 
-			asteroid.AsteroidEcsComponent(),
-			render.RenderAsteroidEcsComponent()])
-
 	def __init__(self):
 		super(AsteroidEcsSystem, self).__init__()
+
+	def receive_damage(self, eid, amount):
+		ac = self.manager.get_entity_comp(eid, AsteroidEcsComponent.name())
+		print 'asteroid receive damage', amount
+		ac.health -= amount
+		if ac.health < 0:
+			ac.health = 0
+			self.manager.kill_entity(eid)
 
 	def on_entity_collision(self, e1id, e2id, impact_size, e1reflect, system_name, event):
 		e1ac = self.manager.get_entity_comp(e1id, AsteroidEcsComponent.name())
@@ -56,17 +60,12 @@ class AsteroidEcsSystem(ecs.EcsSystem):
 			if self.manager.get_entity_comp(e2id, planet.PlanetEcsComponent.name()):
 				self.manager.kill_entity(e1id)
 			elif impact_size > e1ac.impact_resistance:
-				self.manager.kill_entity(e1id)
+				damage = int(impact_size - e1ac.impact_resistance)
+				if damage > 0:
+					self.receive_damage(e1id, damage)
 			else:
 				e1pc = self.manager.get_entity_comp(e1id, phys.PhysicsEcsComponent.name())
 				e1pc.vel += e1reflect
 
 	def on_entity_kill(self, eid, system_name, event):
 		pass
-
-def get_circle_closest_point(pos, cpos, cradius):
-	dv = math.sqrt(math.pow(cpos.x - pos.x, 2) + math.pow(cpos.y - pos.y, 2))
-	cx = cpos.x + (cradius * (pos.x - cpos.x) / dv)
-	cy = cpos.y + (cradius * (pos.y - cpos.y) / dv)
-
-	return vec2d.vec2d(cx, cy)

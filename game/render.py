@@ -127,14 +127,14 @@ class GameEcsRenderer(ecs.EcsRenderer):
 		self.health_label = pyglet.text.Label('',
 				font_name=font.FONT_MONO.name,
 				font_size=12,
-				x=20, y=const.HEIGHT - 35,
+				x=300, y=const.HEIGHT - 10,
 				anchor_x='left', anchor_y='top',
 				color=(0, 255, 0, 255))
 
 		self.rescued_label = pyglet.text.Label('',
 				font_name=font.FONT_MONO.name,
 				font_size=12,
-				x=20, y=const.HEIGHT - 60,
+				x=560, y=const.HEIGHT - 10,
 				anchor_x='left', anchor_y='top',
 				color=(0, 255, 0, 255))
 
@@ -263,8 +263,8 @@ class GameEcsRenderer(ecs.EcsRenderer):
 			nav_circle_radius = (const.HEIGHT - 100) // 2
 			draw_circle(const.WIDTH // 2, const.HEIGHT // 2, nav_circle_radius, 12, gl.GL_LINE_LOOP, (1, 1, 0, 1))
 
-			self.fuel_label.text = 'Fuel:' + str(psc.fuel) + ' / ' + str(psc.fuel_max)
-			self.health_label.text = 'Ship:' + str(psc.health) + ' / ' + str(psc.health_max)
+			self.fuel_label.text = 'Fuel:' + str(psc.fuel) + '/' + str(psc.fuel_max)
+			self.health_label.text = 'Ship:' + str(psc.health) + '/' + str(psc.health_max)
 			self.rescued_label.text = 'Rescued:' + str(psc.passengers)
 
 			self.fuel_label.draw()

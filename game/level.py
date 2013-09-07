@@ -19,11 +19,11 @@ MOON_SIZES = [24]
 
 POSITION_ANGLES = [i for i in xrange(0, 360, 40)]
 
-NAMES = ['Tamande', 'Yolus', 'Tar-ogg', 'Marduk', 'Eileen', 'Silias', 'Addren', 'Aggo', 'Teim', 'Tamut', 'Beda', 'Ponni']
+NAMES = ['Tamde', 'Yolus', 'Trogg', 'Marduk', 'Eleen', 'Silias', 'Addr', 'Aggo', 'Teim', 'Tamut', 'Beda', 'Ponni']
 NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX']
 
-PLANETS_MIN = 11
-PLANETS_MAX = 12
+PLANETS_MIN = 9
+PLANETS_MAX = 10
 
 PLANET_DISTANCE_MIN = 600
 PLANET_DISTANCE_MAX = 700
@@ -92,19 +92,32 @@ def create_player_ship(ecsm):
 	return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, 100, False),
 			coll.CollisionEcsComponent(14), 
 			player.PlayerIdentityEcsComponent(), 
-			ship.ShipEcsComponent(90.0, 6, 200.0, 120, 800, 0),
+			ship.ShipEcsComponent(
+				rotation=90.0, 
+				rotation_speed=6.0, 
+				thrust_force=200.0, 
+				impact_resistance=50, 
+				fuel=800, 
+				passengers=0, 
+				health=110),
 			ship.RenderShipEcsComponent()])
 
 def create_asteroid(ecsm):
 	return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, 100, False),
 			coll.CollisionEcsComponent(14), 
-			asteroid.AsteroidEcsComponent(120),
+			asteroid.AsteroidEcsComponent(
+				impact_resistance=40.0, 
+				health=100),
 			asteroid.RenderAsteroidEcsComponent()])
 
 def create_base(ecsm):
 	return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, 100, False),
 			coll.CollisionEcsComponent(14), 
-			base.BaseEcsComponent(65),
+			base.BaseEcsComponent(
+				radius=65, 
+				fuel_load=200, 
+				impact_resistance=40.0, 
+				health=100),
 			base.RenderBaseEcsComponent()])
 
 def generate_system(ecsm):
@@ -158,6 +171,6 @@ def generate_system(ecsm):
 
 	ecsm.get_system(phys.PhysicsEcsSystem.name()).set_orbit(player_ship_id, home_planet, 300, 0, False)
 
-	ecsm.get_system(phys.PhysicsEcsSystem.name()).set_orbit(a_id, home_planet, 340, 0, False)
+	ecsm.get_system(phys.PhysicsEcsSystem.name()).set_orbit(a_id, home_planet, 340, 30, False)
 
 	ecsm.get_system(phys.PhysicsEcsSystem.name()).set_orbit(b_id, home_planet, 360, 0, False)

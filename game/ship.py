@@ -113,13 +113,23 @@ class ShipEcsSystem(ecs.EcsSystem):
 		sc = self.manager.get_entity_comp(eid, ShipEcsComponent.name())
 		#sc.fuel += amount
 
+	def receive_damage(self, eid, amount):
+		sc = self.manager.get_entity_comp(eid, ShipEcsComponent.name())
+		print 'ship receive damage', amount
+		sc.health -= amount
+		if sc.health < 0:
+			sc.health = 0
+			self.manager.kill_entity(eid)
+
 	def on_entity_collision(self, e1id, e2id, impact_size, e1reflect, system_name, event):
 		e1sc = self.manager.get_entity_comp(e1id, ShipEcsComponent.name())
 		if e1sc:
 			if self.manager.get_entity_comp(e2id, planet.PlanetEcsComponent.name()):
 				self.manager.kill_entity(e1id)
 			elif impact_size > e1sc.impact_resistance:
-				self.manager.kill_entity(e1id)
+				damage = int(impact_size - e1sc.impact_resistance)
+				if damage > 0:
+					self.receive_damage(e1id, damage)
 			else:
 				e1pc = self.manager.get_entity_comp(e1id, phys.PhysicsEcsComponent.name())
 				e1pc.vel += e1reflect
