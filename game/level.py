@@ -4,6 +4,7 @@ from plib import vec2d
 
 import const
 import phys
+import img
 import coll
 import player
 import planet
@@ -32,7 +33,7 @@ def create_system(ecsm, data):
 						phys.GravityEcsComponent(satellite['grav_radius']),
 						coll.CollisionEcsComponent(satellite['size']),
 						planet.PlanetEcsComponent(''),
-						planet.RenderPlanetEcsComponent()])
+						planet.RenderPlanetEcsComponent(satellite.get('img', ''))])
 				if satellite['type'] == 'base':
 					satellite_id = ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, satellite['mass'], False),
 						coll.CollisionEcsComponent(satellite['size']), 
@@ -76,6 +77,8 @@ def generate_system_data():
 	satellite_grav_radius = member_grav_radius // 2
 	satellite_orbit_distance = member_grav_radius // 2
 	satellite_position_angles = [i for i in xrange(0, 360, 90)]
+	planet_imgs = [img.IMG_P_64_1, img.IMG_P_64_2]
+	moon_imgs = [img.IMG_M_48_1,]
 
 	members = []
 
@@ -133,6 +136,7 @@ def generate_system_data():
 
 			satellites.append({'type': 'planet',
 				'name':'Satellite',
+				'img': random.choice(moon_imgs),
 				'size': 24,
 				'mass': 24 * mass_mod,
 				'grav_radius': satellite_grav_radius,
@@ -161,7 +165,7 @@ def generate_system_data():
 		})
 		members.append({'x': pos.x, 'y': pos.y,
 			'type': 'planet',
-			'img': 'p64_2.png',
+			'img': random.choice(planet_imgs),
 			'name': planet_name,
 			'static': True,
 			'size': 64,
