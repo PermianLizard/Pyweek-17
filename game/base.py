@@ -12,23 +12,21 @@ import ship
 
 class BaseEcsComponent(ecs.EcsComponent):
 
-	LOAD_COOLDOWN_MAX = 10
-
 	@classmethod
 	def name(cls):
 		return 'base-component'
 
-	def __init__(self, radius, fuel_load=200, impact_resistance=110.0, health=300):
+	def __init__(self, radius, fuel_load=True, crew_load=True, repairs=True, impact_resistance=110.0, health=300):
 		super(BaseEcsComponent, self).__init__()
 
 		self.radius = float(radius)
 		self.fuel_load = fuel_load
+		self.crew_load = crew_load
+		self.repairs = repairs
 
 		self.impact_resistance = float(impact_resistance)
 		self.health_max = health
 		self.health = health
-
-		self.load_cooldown = 0
 
 	def __str__(self):
 		return 'BaseEcsComponent'
@@ -80,22 +78,33 @@ class BaseEcsSystem(ecs.EcsSystem):
 			if basec:
 				physc = phys_comp_list[idx]
 
+				if basec.crew_load == 0:
+					continue
+
 				for oidx, oeid in enumerate(entities):
 					if idx == oidx: continue
-					shipc = ship_comp_list[oidx]
+					oshipc = ship_comp_list[oidx]
 
-					if shipc:
+					if oshipc:
 						ophysc = phys_comp_list[oidx]
 						if (physc.pos - ophysc.pos).length < basec.radius:
-
-							if basec.load_cooldown > 0:
-								basec.load_cooldown -= 1
-							else:
-								basec.load_cooldown = BaseEcsComponent.LOAD_COOLDOWN_MAX
-
 								if basec.fuel_load:
-									basec.fuel_load -= 1
-									self.manager.get_system(ship.ShipEcsSystem.name()).award_fuel(oeid, 1)
+									fuel_required = oshipc.fuel_max - oshipc.fuel
+									if fuel_required:
+										fuel_to_load = fuel_required
+										self.manager.get_system(ship.ShipEcsSystem.name()).award_fuel(oeid, fuel_to_load)
+										basec.fuel_load = False
+								if basec.crew_load:
+									self.manager.get_system(ship.ShipEcsSystem.name()).award_crew(oeid, basec.crew_load)
+									basec.crew_load = 0
+
+								if basec.repairs:
+									repair_required = oshipc.health_max - oshipc.health
+									if repair_required:
+										repair_to_do = repair_required
+										self.manager.get_system(ship.ShipEcsSystem.name()).award_health(oeid, repair_to_do)
+										basec.repairs = False
+
 
 	def on_entity_collision(self, e1id, e2id, impact_size, e1reflect, system_name, event):
 		e1bc = self.manager.get_entity_comp(e1id, BaseEcsComponent.name())

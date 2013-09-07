@@ -7,6 +7,7 @@ import phys
 import img
 import planet
 import coll
+import font
 
 
 class ShipEcsComponent(ecs.EcsComponent):
@@ -27,6 +28,16 @@ class ShipEcsComponent(ecs.EcsComponent):
 		self.passengers = passengers
 		self.health_max = health
 		self.health = health
+
+		self.messages = []
+
+	def process(self):
+		for message in self.messages:
+			message[1] -= 1
+			if message[1] == 0:
+				self.messages.remove(message)
+				print 'removed message'
+
 
 	def __str__(self):
 		return 'ShipEcsComponent'
@@ -100,21 +111,36 @@ class ShipEcsSystem(ecs.EcsSystem):
 
 	def award_fuel(self, eid, amount):
 		sc = self.manager.get_entity_comp(eid, ShipEcsComponent.name())
+		pc = self.manager.get_entity_comp(eid, phys.PhysicsEcsComponent.name())
+		print 'ship refuel', amount
 		if sc.fuel < sc.fuel_max:
 			sc.fuel += amount
 			if sc.fuel > sc.fuel_max:
 				sc.fuel = sc.fuel_max
 
-	def award_passengers(self, eid, amount):
+			sc.messages.append(['+ %s FUEL' % amount, 80, pc.pos.x - 50, pc.pos.y + 50, (0, 255, 0, 255), None])
+
+	def award_crew(self, eid, amount):
 		sc = self.manager.get_entity_comp(eid, ShipEcsComponent.name())
-		#sc.fuel += amount
+		pc = self.manager.get_entity_comp(eid, phys.PhysicsEcsComponent.name())
+		print 'ship get crew', amount
+
+		sc.passengers += amount
+
+		sc.messages.append(['+ %s CREW' % amount, 80, pc.pos.x - 50, pc.pos.y + 50, (0, 255, 0, 255), None])
 
 	def award_health(self, eid, amount):
 		sc = self.manager.get_entity_comp(eid, ShipEcsComponent.name())
-		#sc.fuel += amount
+		pc = self.manager.get_entity_comp(eid, phys.PhysicsEcsComponent.name())
+		print 'ship get health', amount
+
+		sc.health += amount
+
+		sc.messages.append(['+ %s REPAIRED' % amount, 80, pc.pos.x - 50, pc.pos.y + 50, (0, 255, 0, 255), None])
 
 	def receive_damage(self, eid, amount):
 		sc = self.manager.get_entity_comp(eid, ShipEcsComponent.name())
+		pc = self.manager.get_entity_comp(eid, phys.PhysicsEcsComponent.name())
 		print 'ship receive damage', amount
 		sc.health -= amount
 		if sc.health < 0:
@@ -136,3 +162,12 @@ class ShipEcsSystem(ecs.EcsSystem):
 
 	def on_entity_kill(self, eid, system_name, event):
 		pass
+
+	def update(self, dt):
+		ship_comp_list = self.manager.comps[ShipEcsComponent.name()]
+
+		entities = self.manager.entities
+		for idx, eid in enumerate(entities):
+			shipc = ship_comp_list[idx]
+			if shipc:
+				shipc.process()

@@ -59,6 +59,7 @@ class GameEcsManager(ecs.EcsManager):
 		super(GameEcsManager, self).init()
 
 		self._entities_to_remove = set()
+		self._navigation = True
 
 	def entity_collision(self, e1id, e2id, impact_size, e1reflect, system_name, event):
 		self.dispatch_event('on_entity_collision', e1id, e2id, impact_size, e1reflect, system_name, event)
@@ -77,7 +78,7 @@ class GameEcsManager(ecs.EcsManager):
 
 		for eid in self._entities_to_remove:
 			self.remove_entity(eid)
-		
+
 
 GameEcsManager.register_event_type('on_entity_collision')
 GameEcsManager.register_event_type('on_entity_kill')
@@ -132,6 +133,8 @@ class GameScene(scene.Scene):
 			self.paused = not self.paused
 		elif symbol == pyglet.window.key.TAB:
 			director.push(map.map_scene)
+		elif symbol == pyglet.window.key.N:
+			ecsm._navigation = not ecsm._navigation
 		elif not self.paused:
 			ecsm.on_key_press(symbol, modifiers)
 
