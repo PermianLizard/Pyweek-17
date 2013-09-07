@@ -38,10 +38,13 @@ class RenderBaseEcsComponent(ecs.EcsComponent):
 	def name(cls):
 		return 'render-base-component'
 
-	def __init__(self):
+	def __init__(self, img_name=''):
 		super(RenderBaseEcsComponent, self).__init__()
 
-		#self.spr = pyglet.sprite.Sprite(img.get(img.IMG_SHIP))
+		if img_name:
+			self.spr = pyglet.sprite.Sprite(img.get(img_name))
+		else:
+			self.spr = None
 
 	def __str__(self):
 		return 'RenderBaseEcsComponent'

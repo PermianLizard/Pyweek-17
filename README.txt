@@ -1,6 +1,6 @@
 Include information such as author, requirements, etc.
 
-Cambrian
+System Evacuation
 ===============
 
 Entry in PyWeek #17  <http://www.pyweek.org/17/>
@@ -25,11 +25,11 @@ Open a terminal / console and "cd" to the game directory and run:
 
 HOW TO PLAY THE GAME:
 
-Move you hero from place to place by clicking on locations.
-Build nests when the Nest button is red.
-Nests spawn minions which will help you take out the enemy.
-You can move your hero back to your base to heal.
-The objective is to destroy the enemy base.
+A scientific expedition to a remote, unrealistic solar system has gone horribly wrong:
+The system is passing through a dense asteroid field, endangering all of the research bases.
+You, as the commander of the last functional ship, must go to each planet in the system and evacuate
+the scientific crew on the orbiting research station.
+You have limited fuel, asteroids are everywhere and time's running out!
 
 LICENSE:
 
@@ -38,15 +38,6 @@ The copyrights to these are waived with a Creative Commons Zero waiver.
 They may be freely distributed with no attribution.
 
 Resources created by others are:
-
-Armor Piercing 2 Font is freeware for all use, by Blambot:
-http:/www.blambot.com
-Nate Piekos
-studio@blambot.com
-
-Priority dictionary using binary heaps
-David Eppstein, UC Irvine, 8 Mar 2002
-http://code.activestate.com/recipes/577343-dijkstras-algorithm-for-shortest-paths/
 
 Pyglet template (hacked)
 Juan J. Martínez "reidrac"

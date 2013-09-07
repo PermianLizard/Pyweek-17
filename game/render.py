@@ -201,10 +201,10 @@ class GameEcsRenderer(ecs.EcsRenderer):
 				anchor_x='left', anchor_y='top',
 				color=(255, 255, 255, 255))
 
-		self.controls_label = pyglet.text.Label('<TAB>:MAP  <ESC>:QUIT',
+		self.controls_label = pyglet.text.Label('<TAB>:MAP  <P>:PAUSE  <ESC>:QUIT',
 				font_name=font.FONT_MONO.name,
 				font_size=12,
-				x=500, y=10,
+				x=300, y=10,
 				anchor_x='left', anchor_y='bottom',
 				color=(255, 255, 255, 255))
 
@@ -322,7 +322,14 @@ class GameEcsRenderer(ecs.EcsRenderer):
 
 			elif basec:
 				rbc = rend_base_comp_list[idx]	
-				draw_circle(physc.pos.x, physc.pos.y, collc.radius, None, gl.GL_POLYGON, (1, 0, 0, 1))
+
+				base_sprite = rbc.spr
+				if base_sprite:
+					base_sprite.x = physc.pos.x
+					base_sprite.y = physc.pos.y
+					base_sprite.draw()
+				else:
+					draw_circle(physc.pos.x, physc.pos.y, collc.radius, None, gl.GL_POLYGON, (1, 0, 0, 1))
 
 			elif asterc:
 				rac = rend_aster_comp_list[idx]

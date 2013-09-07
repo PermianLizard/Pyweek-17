@@ -11,9 +11,10 @@ IMG_ASTER = 'aster.png'
 IMG_P_64_1 = 'p64_1.png'
 IMG_P_64_2 = 'p64_2.png'
 IMG_M_48_1 = 'm48_1.png'
+IMG_BASE = 'base.png'
 
-img_name_list = [IMG_SHIP, IMG_THRUST, IMG_SUN, IMG_ASTER, IMG_P_64_1, IMG_P_64_2, IMG_M_48_1]
-img_center_list = [True, True, True, True, True, True, True]
+img_name_list = [IMG_SHIP, IMG_THRUST, IMG_SUN, IMG_ASTER, IMG_P_64_1, IMG_P_64_2, IMG_M_48_1, IMG_BASE]
+img_center_list = [True, True, True, True, True, True, True, True]
 img_dict = {}
 
 def init():

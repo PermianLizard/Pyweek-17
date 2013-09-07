@@ -102,10 +102,6 @@ class GameEcsManager(ecs.EcsManager):
 		for eid in self._entities_to_remove:
 			self.remove_entity(eid)
 
-	def on_key_press(self, symbol, modifiers):
-		if symbol == pyglet.window.key.L:
-			self.create_entity(comps=[render.RenderAnimationEcsComponent(0, 0, anim.ANIM_SHIP_EXP)])
-
 
 GameEcsManager.register_event_type('on_entity_collision')
 GameEcsManager.register_event_type('on_entity_kill')
@@ -142,11 +138,11 @@ class GameScene(scene.Scene):
 
 	def enter(self):
 		new_game()
-		self.paused = False
+		self.paused = True
 		self.victory = False
 		self.defeat = False
 
-		self.title_label = pyglet.text.Label('',
+		self.title_label = pyglet.text.Label('Start',
 			font_name=font.FONT_MONO.name,
 			font_size=40,
 			width = const.WIDTH -200,
@@ -162,7 +158,7 @@ class GameScene(scene.Scene):
 			anchor_x='center', anchor_y='center', multiline=True,
 			color=(255, 255, 255, 255))
 
-		self.control_label = pyglet.text.Label('',
+		self.control_label = pyglet.text.Label('Press <P> to Begin',
 			font_name=font.FONT_MONO.name,
 			font_size=18,
 			width = const.WIDTH -200,

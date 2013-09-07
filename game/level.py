@@ -44,7 +44,7 @@ def create_system(ecsm, data):
 							repairs=satellite['repair'],
 							impact_resistance=satellite['impact_resistence'], 
 							health=satellite['health']),
-						base.RenderBaseEcsComponent()])
+						base.RenderBaseEcsComponent(satellite.get('img', ''))])
 
 				if satellite['type'] == 'ship':
 					satellite_id = ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, satellite['mass'], False),
@@ -151,6 +151,7 @@ def generate_system_data():
 		crew_to_rescue += 30
 		satellites.append({'type': 'base',
 			'name':'Satellite',
+			'img': img.IMG_BASE,
 			'size': 14,
 			'mass': 300,
 			'service_radius': 65,
