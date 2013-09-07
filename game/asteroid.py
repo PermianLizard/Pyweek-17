@@ -14,8 +14,10 @@ class AsteroidEcsComponent(ecs.EcsComponent):
 	def name(cls):
 		return 'asteroid-component'
 
-	def __init__(self):
+	def __init__(self, impact_resistance=110.0):
 		super(AsteroidEcsComponent, self).__init__()
+
+		self.impact_resistance = float(impact_resistance)
 
 	def __str__(self):
 		return 'AsteroidEcsComponent'
@@ -48,18 +50,16 @@ class AsteroidEcsSystem(ecs.EcsSystem):
 	def __init__(self):
 		super(AsteroidEcsSystem, self).__init__()
 
-	def on_entity_collision(self, e1id, e2id, e1reflect, system_name, event):
+	def on_entity_collision(self, e1id, e2id, impact_size, e1reflect, system_name, event):
 		e1ac = self.manager.get_entity_comp(e1id, AsteroidEcsComponent.name())
-		e2ac = self.manager.get_entity_comp(e2id, AsteroidEcsComponent.name())
-
 		if e1ac:
 			if self.manager.get_entity_comp(e2id, planet.PlanetEcsComponent.name()):
+				self.manager.kill_entity(e1id)
+			elif impact_size > e1ac.impact_resistance:
 				self.manager.kill_entity(e1id)
 			else:
 				e1pc = self.manager.get_entity_comp(e1id, phys.PhysicsEcsComponent.name())
 				e1pc.vel += e1reflect
-
-				#self.manager.kill_entity(e1id)
 
 	def on_entity_kill(self, eid, system_name, event):
 		pass

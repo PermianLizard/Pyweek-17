@@ -8,22 +8,22 @@ import coll
 import player
 import planet
 import ship
+import base
 import asteroid
 import render
 
 
-SUN_SIZES = [120, 128]
-PLANET_SIZES = [56, 64, 72, 80]
-#PLANET_SIZES = [32, 40, 48, 56, 64, 72, 80, 88]
-MOON_SIZES = [16, 24]
+SUN_SIZES = [128]
+PLANET_SIZES = [64]
+MOON_SIZES = [24]
 
 POSITION_ANGLES = [i for i in xrange(0, 360, 45)]
 
 NAMES = ['Tamande', 'Yolus', 'Tar-ogg', 'Marduk', 'Eileen', 'Silias', 'Addren', 'Aggo', 'Teim', 'Tamut']
 NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX']
 
-PLANETS_MIN = 6
-PLANETS_MAX = 7
+PLANETS_MIN = 4
+PLANETS_MAX = 5
 
 PLANET_DISTANCE_MIN = 400
 PLANET_DISTANCE_MAX = 600
@@ -92,14 +92,20 @@ def create_player_ship(ecsm):
 	return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, 100, False),
 			coll.CollisionEcsComponent(14), 
 			player.PlayerIdentityEcsComponent(), 
-			ship.ShipEcsComponent(90.0, 6, 500.0),
+			ship.ShipEcsComponent(90.0, 6, 200.0, 120, 800, 0),
 			ship.RenderShipEcsComponent()])
 
 def create_asteroid(ecsm):
-	return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, 1000, False),
+	return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, 100, False),
 			coll.CollisionEcsComponent(14), 
-			asteroid.AsteroidEcsComponent(),
+			asteroid.AsteroidEcsComponent(120),
 			asteroid.RenderAsteroidEcsComponent()])
+
+def create_base(ecsm):
+	return ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, 100, False),
+			coll.CollisionEcsComponent(14), 
+			base.BaseEcsComponent(65),
+			base.RenderBaseEcsComponent()])
 
 def generate_system(ecsm):
 	available_names = NAMES[:]
@@ -129,7 +135,10 @@ def generate_system(ecsm):
 
 	player_ship_id = create_player_ship(ecsm)
 	a_id = create_asteroid(ecsm)
+	b_id = create_base(ecsm)
 
 	ecsm.get_system(phys.PhysicsEcsSystem.name()).set_orbit(player_ship_id, home_planet, 300, 0, False)
 
 	ecsm.get_system(phys.PhysicsEcsSystem.name()).set_orbit(a_id, home_planet, 340, 0, False)
+
+	ecsm.get_system(phys.PhysicsEcsSystem.name()).set_orbit(b_id, home_planet, 360, 0, False)

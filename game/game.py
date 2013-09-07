@@ -16,6 +16,7 @@ import player
 import planet
 import asteroid
 import ship
+import base
 import render
 import level
 
@@ -28,6 +29,7 @@ class GameEcsManager(ecs.EcsManager):
 		self.add_system(phys.PhysicsEcsSystem())
 		self.add_system(coll.CollisionEcsSystem())
 		self.add_system(ship.ShipEcsSystem())
+		self.add_system(base.BaseEcsSystem())
 		self.add_system(asteroid.AsteroidEcsSystem())
 		self.add_system(player.PlayerEscSystem())
 
@@ -44,9 +46,11 @@ class GameEcsManager(ecs.EcsManager):
 		self.reg_comp_type(player.PlayerIdentityEcsComponent.name())
 		self.reg_comp_type(planet.PlanetEcsComponent.name())
 		self.reg_comp_type(ship.ShipEcsComponent.name())
+		self.reg_comp_type(base.BaseEcsComponent.name())
 		self.reg_comp_type(asteroid.AsteroidEcsComponent.name())
 		self.reg_comp_type(planet.RenderPlanetEcsComponent.name())		
 		self.reg_comp_type(ship.RenderShipEcsComponent.name())
+		self.reg_comp_type(base.RenderBaseEcsComponent.name())
 		self.reg_comp_type(asteroid.RenderAsteroidEcsComponent.name())
 
 	def init(self):
@@ -56,8 +60,8 @@ class GameEcsManager(ecs.EcsManager):
 
 		self._entities_to_remove = set()
 
-	def entity_collision(self, e1id, e2id, e1reflect, system_name, event):
-		self.dispatch_event('on_entity_collision', e1id, e2id, e1reflect, system_name, event)
+	def entity_collision(self, e1id, e2id, impact_size, e1reflect, system_name, event):
+		self.dispatch_event('on_entity_collision', e1id, e2id, impact_size, e1reflect, system_name, event)
 
 	def mark_entity_for_removal(self, eid):
 		self._entities_to_remove.add(eid)

@@ -98,11 +98,30 @@ class CollisionEcsSystem(ecs.EcsSystem):
 
 						r = incidence - (2 * incidence.dot(normal)) * normal
 
-						# some kind of friction
-						#frict = r.length / abs(r.get_angle_between(normal))
+						impact_size = (ophysc.vel - physc.vel).length
 
-						self.manager.entity_collision(eid, oeid, r * c2, CollisionEcsSystem.name(), 'collision')
-						self.manager.entity_collision(oeid, eid, ~r * c1, CollisionEcsSystem.name(), 'collision')
+						angle = abs(r.get_angle_between(normal))
+					
+						if angle > 1:
+							#print angle, angle * 0.3
+							mod = angle * 0.3
+
+							if r.length > mod:
+								r.length -= mod
+							else:
+								r.length = 0
+
+							#r.length /= (angle * 0.3)
+
+						# friction jobbie
+						#j = max(-(1 + 0.1) * physc.vel.dot(normal), 0.0)
+						#print j, impact_size
+						#r += normal * j
+
+						#contact.rigidBody->linearMomentum += j * contact.normal;
+
+						self.manager.entity_collision(eid, oeid, impact_size, r * c2, CollisionEcsSystem.name(), 'collision')
+						self.manager.entity_collision(oeid, eid, impact_size, ~r * c1, CollisionEcsSystem.name(), 'collision')
 
 	def on_pre_remove_entity(self, eid, system_name, event):
 		pass

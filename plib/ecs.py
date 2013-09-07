@@ -2,6 +2,7 @@ import copy
 import pyglet
 from collections import OrderedDict
 
+
 class EcsComponent(object):
 
 	@classmethod
@@ -19,6 +20,7 @@ class EcsComponent(object):
 
 	def __str__(self):
 		return 'EcsComponent'
+
 
 class EcsSystem(object):
 
