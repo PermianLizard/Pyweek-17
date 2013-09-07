@@ -1,12 +1,24 @@
 import math
 import pyglet
+import random
+
 from plib import vec2d
 from plib import ecs
 
+import img
+import anim
+import const
 import phys
 import render
 import coll
 import planet
+import ship
+import phys
+import coll
+import player
+
+
+POSITION_ANGLES = [i for i in xrange(0, 360, 20)]
 
 class AsteroidEcsComponent(ecs.EcsComponent):
 
@@ -31,8 +43,13 @@ class RenderAsteroidEcsComponent(ecs.EcsComponent):
 	def name(cls):
 		return 'render-asteroid-component'
 
-	def __init__(self):
+	def __init__(self, img_name=''):
 		super(RenderAsteroidEcsComponent, self).__init__()
+
+		if img_name:
+			self.spr = pyglet.sprite.Sprite(img.get(img_name))
+		else:
+			self.spr = None
 
 	def __str__(self):
 		return 'RenderAsteroidEcsComponent'
@@ -45,6 +62,8 @@ class AsteroidEcsSystem(ecs.EcsSystem):
 
 	def __init__(self):
 		super(AsteroidEcsSystem, self).__init__()
+
+		self.generate_radius = const.WIDTH + 20
 
 	def receive_damage(self, eid, amount):
 		ac = self.manager.get_entity_comp(eid, AsteroidEcsComponent.name())
@@ -69,3 +88,56 @@ class AsteroidEcsSystem(ecs.EcsSystem):
 
 	def on_entity_kill(self, eid, system_name, event):
 		pass
+
+	def on_entity_kill(self, eid, system_name, event):
+		ac = self.manager.get_entity_comp(eid, AsteroidEcsComponent.name())
+		pc = self.manager.get_entity_comp(eid, phys.PhysicsEcsComponent.name())
+		if ac:
+			self.manager.create_entity(comps=[render.RenderAnimationEcsComponent(pc.pos.x, pc.pos.y, anim.ANIM_SHIP_EXP)])
+
+	def update(self, dt):
+		player_sys = self.manager.get_system(player.PlayerEscSystem.name())
+
+		phys_comp_list = self.manager.comps[phys.PhysicsEcsComponent.name()]
+		coll_comp_list = self.manager.comps[coll.CollisionEcsComponent.name()]
+		aster_comp_list = self.manager.comps[AsteroidEcsComponent.name()]
+
+		# generate
+		if player_sys.player_entity_id:
+			player_pc = self.manager.get_entity_comp(player_sys.player_entity_id, phys.PhysicsEcsComponent.name())
+			player_sc = self.manager.get_entity_comp(player_sys.player_entity_id, ship.ShipEcsComponent.name())
+			if player_pc and player_sc:
+				time = player_sys.time_limit
+				if time % 20 == 0:
+
+					if player_pc.vel.length > random.randint(1, phys.SPEED_LIMIT):
+
+						player_angle = player_pc.vel.get_angle()
+						gen_angle = random.choice([angle for angle in xrange(int(player_angle-90), int(player_angle+90))])
+						gen_pos = vec2d.vec2d(self.generate_radius, 0)
+						gen_pos.rotate(gen_angle)
+						gen_pos = player_pc.pos + gen_pos
+
+						valid_pos = True
+						for idx, physc in enumerate(phys_comp_list):
+							if physc:
+								collc = coll_comp_list[idx]
+								if physc.pos.get_distance(gen_pos) < collc.radius:
+									valid_pos = False
+
+						gen_vel = vec2d.vec2d(random.randint(0, 80), random.randint(0, 80))
+						# create new asteroid
+						if valid_pos:
+							self.manager.create_entity([phys.PhysicsEcsComponent(gen_pos.x, gen_pos.y, mass=100, static=False, vx=gen_vel.x, vy=gen_vel.y), 
+								coll.CollisionEcsComponent(radius=14), 
+								AsteroidEcsComponent(impact_resistance=50.0, health=100),
+								RenderAsteroidEcsComponent(img.IMG_ASTER)])
+
+			entities = self.manager.entities
+			for idx, eid in enumerate(entities):
+				asterc = aster_comp_list[idx]
+				if asterc:
+					physc = phys_comp_list[idx]
+					if physc and player_pc:
+						if player_pc.pos.get_distance(physc.pos) > self.generate_radius:
+							self.manager.mark_entity_for_removal(eid)

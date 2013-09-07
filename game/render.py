@@ -194,6 +194,13 @@ class GameEcsRenderer(ecs.EcsRenderer):
 				anchor_x='left', anchor_y='top',
 				color=(255, 255, 255, 255))
 
+		self.speed_label = pyglet.text.Label('SPEED',
+				font_name=font.FONT_MONO.name,
+				font_size=12,
+				x=575, y=const.HEIGHT - 60,
+				anchor_x='left', anchor_y='top',
+				color=(255, 255, 255, 255))
+
 		self.controls_label = pyglet.text.Label('<TAB>:MAP  <ESC>:QUIT',
 				font_name=font.FONT_MONO.name,
 				font_size=12,
@@ -319,7 +326,14 @@ class GameEcsRenderer(ecs.EcsRenderer):
 
 			elif asterc:
 				rac = rend_aster_comp_list[idx]
-				draw_circle(physc.pos.x, physc.pos.y, collc.radius, None, gl.GL_POLYGON, (0, 1, 0, 1))
+
+				aster_sprite = rac.spr
+				if aster_sprite:
+					aster_sprite.x = physc.pos.x
+					aster_sprite.y = physc.pos.y
+					aster_sprite.draw()
+				else:
+					draw_circle(physc.pos.x, physc.pos.y, collc.radius, None, gl.GL_POLYGON, (0, 1, 0, 1))
 
 			elif planetc:
 				rpc = rend_plan_comp_list[idx]
@@ -424,10 +438,13 @@ class GameEcsRenderer(ecs.EcsRenderer):
 			seconds_remaining = self.manager.get_system(player.PlayerEscSystem.name()).time_limit / director.director.fps
 			self.time_label.text = 'TIME %.2f' % seconds_remaining
 
-			self.fuel_label.draw()
+			self.speed_label.text = 'SPEED %.2f' % ppc.vel.length
+
+			self.fuel_label.draw()									
 			self.health_label.draw()
 			self.rescued_label.draw()
 			self.time_label.draw()
+			self.speed_label.draw()
 
 		self.controls_label.draw()
 

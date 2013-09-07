@@ -13,10 +13,10 @@ class PhysicsEcsComponent(ecs.EcsComponent):
 	def name(cls):
 		return 'physics-component'
 
-	def __init__(self, x, y, mass, static=False):
+	def __init__(self, x, y, mass, static=False, vx=0.0, vy=0.0):
 		super(PhysicsEcsComponent, self).__init__()
 		self.pos = vec2d.vec2d(x, y)
-		self.vel = vec2d.vec2d(0, 0)
+		self.vel = vec2d.vec2d(vx, vy)
 		self.acc = vec2d.vec2d(0, 0)
 		self.mass = float(mass)
 		self.static = static

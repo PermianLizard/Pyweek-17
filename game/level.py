@@ -87,7 +87,7 @@ def generate_system_data():
 		'rotation_speed': 6.0,
 		'thrust_force': 200.0,
 		'impact_resistance': 50.0,
-		'fuel': 800,
+		'fuel': 700,
 		'passengers': 0,
 		'health': 350,
 		'orbit_distance': member_grav_radius * .75,

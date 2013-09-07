@@ -58,7 +58,7 @@ class PlayerEscSystem(ecs.EcsSystem):
 			if player_comp_list[idx]:
 				self.player_entity_id = eid
 
-		self.time_limit = 10000
+		self.time_limit = 17000
 
 	def on_crew_rescued(self, eid, amount):
 		if eid == self.player_entity_id:
