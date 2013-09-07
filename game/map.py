@@ -17,7 +17,7 @@ import render
 
 map_scene = None
 
-ZOOM = 0.06
+ZOOM = 0.04
 
 def init():
 	global map_scene
@@ -99,9 +99,9 @@ class MapScene(scene.Scene):
 	                          color=(0, 255, 0, 255))
 					label.draw()
 
-				#gc = grav_comp_list[idx]
-				#if gc and gc.gravity_radius:
-				#	render.draw_circle(physc.pos.x * ZOOM, physc.pos.y * ZOOM, gc.gravity_radius * ZOOM, None, gl.GL_LINE_LOOP)
+				gc = grav_comp_list[idx]
+				if gc and gc.gravity_radius:
+					render.draw_circle(physc.pos.x * ZOOM, physc.pos.y * ZOOM, gc.gravity_radius * ZOOM, None, gl.GL_LINE_LOOP)
 
 		# show player position
 		

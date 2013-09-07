@@ -17,19 +17,19 @@ SUN_SIZES = [128]
 PLANET_SIZES = [64]
 MOON_SIZES = [24]
 
-POSITION_ANGLES = [i for i in xrange(0, 360, 45)]
+POSITION_ANGLES = [i for i in xrange(0, 360, 40)]
 
-NAMES = ['Tamande', 'Yolus', 'Tar-ogg', 'Marduk', 'Eileen', 'Silias', 'Addren', 'Aggo', 'Teim', 'Tamut']
+NAMES = ['Tamande', 'Yolus', 'Tar-ogg', 'Marduk', 'Eileen', 'Silias', 'Addren', 'Aggo', 'Teim', 'Tamut', 'Beda', 'Ponni']
 NUMERALS = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX']
 
-PLANETS_MIN = 4
-PLANETS_MAX = 5
+PLANETS_MIN = 11
+PLANETS_MAX = 12
 
-PLANET_DISTANCE_MIN = 400
-PLANET_DISTANCE_MAX = 600
+PLANET_DISTANCE_MIN = 600
+PLANET_DISTANCE_MAX = 700
 
 # multiplier for how big a planet's gravity radius is (compared to max distance)
-GRAV_RADIUS_MOD = 0.9
+GRAV_RADIUS_MOD = 1
 # min size of planets that have moons
 MIN_MOON_PLANET_SIZE = 56
 
@@ -72,7 +72,7 @@ def create_planet(ecsm, name, distance, angle, suppress_moons=False):
 			size = random.choice(MOON_SIZES)	
 			mass = size * MASS_MOD # TODO density
 
-			grav_radius = PLANET_DISTANCE_MAX // 8
+			grav_radius = PLANET_DISTANCE_MIN // 8
 
 			moon_id = ecsm.create_entity([phys.PhysicsEcsComponent(0, 0, mass, False), 
 				phys.GravityEcsComponent(grav_radius), # why this no work!?
@@ -110,10 +110,9 @@ def create_base(ecsm):
 def generate_system(ecsm):
 	available_names = NAMES[:]
 
-	available_angles = POSITION_ANGLES[:]
-
 	planet_ids = []
 
+	prev_angle = None
 	distance = PLANET_DISTANCE_MIN * 1.5 # place a little further away from the sun
 	for planet_gen_id in xrange(random.randint(PLANETS_MIN, PLANETS_MIN + 1)):
 		# sun
@@ -125,11 +124,31 @@ def generate_system(ecsm):
 			if planet_gen_id == 1:
 				suppress_moons = True
 			distance += random.randint(PLANET_DISTANCE_MIN, PLANET_DISTANCE_MAX)
-			angle = random.choice(available_angles)
-			available_angles.remove(angle)
+
+			angle_options = POSITION_ANGLES[:]
+			if prev_angle is not None:
+				#print 'previous angle was', prev_angle
+				a_idx = angle_options.index(prev_angle)
+				angle_remove_range = (a_idx - 1, a_idx + 2)
+				a_to_remove = []
+				for ai in xrange(angle_remove_range[0], angle_remove_range[1]):
+					if ai < 0:
+						ai = len(angle_options) - 1
+					elif ai > len(angle_options) - 1:
+						ai -= len(angle_options)
+					a_to_remove.append(angle_options[ai])
+
+				for angle in a_to_remove:
+					angle_options.remove(angle)
+
+			#print angle_options
+
+			angle = random.choice(angle_options)
 			name = random.choice(available_names)
 			available_names.remove(name)
 			planet_ids.append(create_planet(ecsm, name, distance, angle, suppress_moons))
+
+			prev_angle = angle
 
 	home_planet = planet_ids[1]
 

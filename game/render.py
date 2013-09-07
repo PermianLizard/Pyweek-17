@@ -138,7 +138,7 @@ class GameEcsRenderer(ecs.EcsRenderer):
 				anchor_x='left', anchor_y='top',
 				color=(0, 255, 0, 255))
 
-		self.starfield = starfield.Starfield((0, 0, const.WIDTH, const.HEIGHT), 200)
+		self.starfield = starfield.Starfield((0, 0, const.WIDTH, const.HEIGHT), 400)
 
 	def on_create_entity(self, eid, system_name, event):
 		planet_comp_list = self.manager.comps[planet.PlanetEcsComponent.name()]
