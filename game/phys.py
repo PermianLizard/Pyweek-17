@@ -98,6 +98,9 @@ class PhysicsEcsSystem(ecs.EcsSystem):
 				continue
 
 			for o_pc in phys_comp_list:
+				if not o_pc:
+					continue
+
 				if pc == o_pc: 
 					continue
 				if o_pc.static:
@@ -114,6 +117,8 @@ class PhysicsEcsSystem(ecs.EcsSystem):
 				o_pc.apply_force(fv.x, fv.y)
 
 		for pc in phys_comp_list:
+			if not pc:
+				continue
 			pc.update(dt)
 
 	def __str__(self):

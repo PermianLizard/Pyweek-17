@@ -1,6 +1,9 @@
 import math
+import pyglet
 from plib import vec2d
 from plib import ecs
+
+import img
 import phys
 
 class PlanetEcsComponent(ecs.EcsComponent):
@@ -23,8 +26,14 @@ class RenderPlanetEcsComponent(ecs.EcsComponent):
 	def name(cls):
 		return 'render-planet-component'
 
-	def __init__(self):
+	def __init__(self, img_name=''):
 		super(RenderPlanetEcsComponent, self).__init__()
+
+		if img_name:
+			print 'img name: ', img_name
+			self.spr = pyglet.sprite.Sprite(img.get(img_name))
+		else:
+			self.spr = None
 
 	def __str__(self):
 		return 'RenderPlanetEcsComponent'

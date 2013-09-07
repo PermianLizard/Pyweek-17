@@ -3,12 +3,15 @@ import pyglet
 
 import start
 
-IMG_HUD = 'hud.png'
-IMG_SHIP = 'ship.png'
-IMG_BG = 'starbg.png'
 
-img_name_list = [IMG_HUD, IMG_SHIP, IMG_BG]
-img_center_list = [True, True, False]
+IMG_SHIP = 'ship.png'
+IMG_THRUST = 'thrust.png'
+IMG_SUN = 'sun.png'
+IMG_P_64_1 = 'p64_1.png'
+IMG_P_64_2 = 'p64_2.png'
+
+img_name_list = [IMG_SHIP, IMG_THRUST, IMG_SUN, IMG_P_64_1, IMG_P_64_2]
+img_center_list = [True, True, True, True, True]
 img_dict = {}
 
 def init():

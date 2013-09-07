@@ -5,9 +5,11 @@ from plib import ecs
 
 import phys
 import img
+import anim
 import planet
 import coll
 import font
+import render
 
 
 class ShipEcsComponent(ecs.EcsComponent):
@@ -55,6 +57,7 @@ class RenderShipEcsComponent(ecs.EcsComponent):
 		super(RenderShipEcsComponent, self).__init__()
 
 		self.spr = pyglet.sprite.Sprite(img.get(img.IMG_SHIP))
+		self.thrust_spr = pyglet.sprite.Sprite(anim.get(anim.ANIM_THRUST))
 
 		self.thrust_cooldown = 0
 
@@ -64,9 +67,6 @@ class RenderShipEcsComponent(ecs.EcsComponent):
 	def process(self):
 		if self.thrust_cooldown:
 			self.thrust_cooldown -= 1
-
-			if not self.thrust_cooldown:
-				print 'thrust ended'
 
 	def __str__(self):
 		return 'RenderShipEcsComponent'
@@ -129,6 +129,8 @@ class ShipEcsSystem(ecs.EcsSystem):
 
 		sc.messages.append(['+ %s CREW' % amount, 80, pc.pos.x - 50, pc.pos.y + 50, (0, 255, 0, 255), None])
 
+		self.manager.crew_rescued(eid, amount)
+
 	def award_health(self, eid, amount):
 		sc = self.manager.get_entity_comp(eid, ShipEcsComponent.name())
 		pc = self.manager.get_entity_comp(eid, phys.PhysicsEcsComponent.name())
@@ -147,6 +149,12 @@ class ShipEcsSystem(ecs.EcsSystem):
 			sc.health = 0
 			self.manager.kill_entity(eid)
 
+	def on_entity_kill(self, eid, system_name, event):
+		sc = self.manager.get_entity_comp(eid, ShipEcsComponent.name())
+		pc = self.manager.get_entity_comp(eid, phys.PhysicsEcsComponent.name())
+		if sc:
+			self.manager.create_entity(comps=[render.RenderAnimationEcsComponent(pc.pos.x, pc.pos.y, anim.ANIM_SHIP_EXP)])					
+
 	def on_entity_collision(self, e1id, e2id, impact_size, e1reflect, system_name, event):
 		e1sc = self.manager.get_entity_comp(e1id, ShipEcsComponent.name())
 		if e1sc:
@@ -159,9 +167,6 @@ class ShipEcsSystem(ecs.EcsSystem):
 			else:
 				e1pc = self.manager.get_entity_comp(e1id, phys.PhysicsEcsComponent.name())
 				e1pc.vel += e1reflect
-
-	def on_entity_kill(self, eid, system_name, event):
-		pass
 
 	def update(self, dt):
 		ship_comp_list = self.manager.comps[ShipEcsComponent.name()]

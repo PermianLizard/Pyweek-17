@@ -48,6 +48,10 @@ class Director(pyglet.event.EventDispatcher):
 	def keys(self):
 		return self._keys
 
+	@property
+	def fps(self):
+		return self._fps
+
 	def init(self, width=800, height=600, fullscreen=False, caption="Title", fps=60.0, debug=False):
 		if self._initialized:
 			self.cleanup()

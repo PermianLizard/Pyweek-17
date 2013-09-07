@@ -5,9 +5,11 @@ from pyglet import gl
 
 from plib import vec2d
 from plib import ecs
+from plib import director
 
 import font
 import img
+import anim
 import const
 import phys
 import coll
@@ -97,6 +99,47 @@ class RenderEcsComponent(ecs.EcsComponent):
 		return 'RenderEcsComponent'
 
 
+class RenderAnimationEcsComponent(ecs.EcsComponent):
+
+	@classmethod
+	def name(cls):
+		return 'render-animation-component'
+
+	def process(self):
+		pass
+
+	def on_animation_end(self):
+		self.ended = True
+
+	def __init__(self, x, y, name):
+		super(RenderAnimationEcsComponent, self).__init__()
+
+		self.anim = pyglet.sprite.Sprite(anim.get(name))
+		self.anim.x = x
+		self.anim.y = y
+		self.anim.on_animation_end = self.on_animation_end
+
+		self.ended = False
+
+	def __str__(self):
+		return 'RenderAnimationEcsComponent'
+
+
+class RenderAnimationEcsSystem(ecs.EcsSystem):
+
+	@classmethod
+	def name(cls):
+		return 'animation-system'
+
+	def update(self, dt):
+		anim_comp_list = self.manager.comps[RenderAnimationEcsComponent.name()]
+		for idx, anim in enumerate(anim_comp_list):
+			if not anim:
+				continue
+			if anim.ended:
+				self.manager.remove_entity(self.manager.entities[idx])
+
+
 class GameEcsRenderer(ecs.EcsRenderer):
 
 	@classmethod
@@ -144,6 +187,20 @@ class GameEcsRenderer(ecs.EcsRenderer):
 				anchor_x='left', anchor_y='top',
 				color=(255, 255, 255, 255))
 
+		self.time_label = pyglet.text.Label('TIME',
+				font_name=font.FONT_MONO.name,
+				font_size=12,
+				x=575, y=const.HEIGHT - 35,
+				anchor_x='left', anchor_y='top',
+				color=(255, 255, 255, 255))
+
+		self.controls_label = pyglet.text.Label('<TAB>:MAP  <ESC>:QUIT',
+				font_name=font.FONT_MONO.name,
+				font_size=12,
+				x=500, y=10,
+				anchor_x='left', anchor_y='bottom',
+				color=(255, 255, 255, 255))
+
 		self.starfield = starfield.Starfield((0, 0, const.WIDTH, const.HEIGHT), 400)
 
 	def on_create_entity(self, eid, system_name, event):
@@ -171,6 +228,8 @@ class GameEcsRenderer(ecs.EcsRenderer):
 		rend_ship_comp_list = self.manager.comps[ship.RenderShipEcsComponent.name()]
 		rend_base_comp_list = self.manager.comps[base.RenderBaseEcsComponent.name()]
 		rend_aster_comp_list = self.manager.comps[asteroid.RenderAsteroidEcsComponent.name()]
+
+		rend_anim_comp_list = self.manager.comps[RenderAnimationEcsComponent.name()]
 
 		entities = self.manager.entities
 
@@ -215,6 +274,9 @@ class GameEcsRenderer(ecs.EcsRenderer):
 			physc = phys_comp_list[idx]
 			collc = coll_comp_list[idx]
 
+			if not physc:
+				continue
+
 			#if eid == self.player_entity_id:
 			#	print physc.pos.x, physc.pos.y, collc.radius, tx, tx
 			#	print circle_rect_intersect(physc.pos.x, physc.pos.y, collc.radius, tx, tx, const.WIDTH, const.HEIGHT)
@@ -232,6 +294,13 @@ class GameEcsRenderer(ecs.EcsRenderer):
 				ship_sprite.y = physc.pos.y
 				ship_sprite.rotation = -shipc.rotation
 				ship_sprite.draw()				
+
+				if rsc.thrust_cooldown:
+					thrust_sprite = rsc.thrust_spr
+					thrust_sprite.x = physc.pos.x
+					thrust_sprite.y = physc.pos.y
+					thrust_sprite.rotation = -shipc.rotation
+					thrust_sprite.draw()
 
 				#draw_circle(physc.pos.x, physc.pos.y, collc.radius, None, gl.GL_POLYGON, (1, 1, 0, 1))
 
@@ -255,7 +324,13 @@ class GameEcsRenderer(ecs.EcsRenderer):
 			elif planetc:
 				rpc = rend_plan_comp_list[idx]
 
-				draw_circle(physc.pos.x, physc.pos.y, collc.radius)
+				planet_sprite = rpc.spr
+				if planet_sprite:
+					planet_sprite.x = physc.pos.x
+					planet_sprite.y = physc.pos.y
+					planet_sprite.draw()
+				else:
+					draw_circle(physc.pos.x, physc.pos.y, collc.radius)
 
 				if planetc.pname:
 					label = pyglet.text.Label(planetc.pname,
@@ -270,38 +345,49 @@ class GameEcsRenderer(ecs.EcsRenderer):
 				#if gc and gc.gravity_radius:
 				#	draw_circle(physc.pos.x, physc.pos.y, gc.gravity_radius, None, gl.GL_LINE_LOOP)
 
-			for idx, eid in enumerate(entities):
-				shipc = ship_comp_list[idx]
+			for anim in rend_anim_comp_list:
+				if not anim:
+					continue
 
-				if shipc:
-					if shipc.messages:
-						pos_mod = 0.0
-						for message in shipc.messages:
-							label = message[5]
-							if not label:
-								label = pyglet.text.Label(message[0],
-									font_name=font.FONT_MONO.name,
-									font_size=12,
-									x = message[2], y = message[3] + pos_mod,
-									anchor_x='left', anchor_y='bottom',
-									color=message[4])
-								message[5] = label
-							label.draw()
-							pos_mod +=  25
+				#print 'we have an anim to show!'
+				a = anim.anim
+				a.draw()
+
+			if player_alive and not self.manager.victory:
+				for idx, eid in enumerate(entities):
+					shipc = ship_comp_list[idx]
+
+					if shipc:
+						if shipc.messages:
+							pos_mod = 0.0
+							for message in shipc.messages:
+								label = message[5]
+								if not label:
+									label = pyglet.text.Label(message[0],
+										font_name=font.FONT_MONO.name,
+										font_size=12,
+										x = message[2], y = message[3] + pos_mod,
+										anchor_x='left', anchor_y='bottom',
+										color=message[4])
+									message[5] = label
+								label.draw()
+								pos_mod +=  25
 
 		gl.glPopMatrix()
 
 		# interface
-		if player_alive:
-
+		if player_alive and not self.manager.victory:
 			if self.manager._navigation:
-				gl.glLineWidth(2)
+				gl.glLineWidth(1)
 				nav_circle_radius = (const.HEIGHT - 100) // 2
 				draw_circle(const.WIDTH // 2, const.HEIGHT // 2, nav_circle_radius, None, gl.GL_LINE_LOOP, (1, 1, 0, 0.4))
 
 				for idx, eid in enumerate(entities):
 					basec = base_comp_list[idx]
 					physc = phys_comp_list[idx]
+
+					if not physc:
+						continue
 
 					distance = ppc.pos.get_distance(physc.pos) / 50
 
@@ -329,16 +415,21 @@ class GameEcsRenderer(ecs.EcsRenderer):
 					border_color=(255, 255, 255),
 					progress=False)
 
-			show_bar(730, const.HEIGHT - 32, 0, 100,
+			show_bar(730, const.HEIGHT - 32, psc.passengers, self.manager.crew_to_rescue,
 					width=100., 
 					height=15., 
 					border_color=(255, 255, 255),
 					progress=False)
 
+			seconds_remaining = self.manager.get_system(player.PlayerEscSystem.name()).time_limit / director.director.fps
+			self.time_label.text = 'TIME %.2f' % seconds_remaining
+
 			self.fuel_label.draw()
 			self.health_label.draw()
 			self.rescued_label.draw()
+			self.time_label.draw()
 
+		self.controls_label.draw()
 
 		# draw the HUD
 		#self.hud_sprite.draw()
