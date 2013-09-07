@@ -5,7 +5,7 @@ Game constants
 APP_NAME = "System Evacuation"
 PROJECT_DESC = "Pyweek 17 entry"
 PROJECT_URL = "http://pyweek.org/e/Cambrian/"
-VERSION = "0.1"
+VERSION = "0.2"
 
 # desired game area
 WIDTH = 800
