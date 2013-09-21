@@ -108,7 +108,7 @@ class AsteroidEcsSystem(ecs.EcsSystem):
 			player_sc = self.manager.get_entity_comp(player_sys.player_entity_id, ship.ShipEcsComponent.name())
 			if player_pc and player_sc:
 				time = player_sys.time_limit
-				if time % 20 == 0:
+				if time % 3 == 0:
 
 					if player_pc.vel.length > random.randint(1, phys.SPEED_LIMIT):
 
@@ -125,7 +125,7 @@ class AsteroidEcsSystem(ecs.EcsSystem):
 								if physc.pos.get_distance(gen_pos) < collc.radius:
 									valid_pos = False
 
-						gen_vel = vec2d.vec2d(random.randint(0, 80), random.randint(0, 80))
+						gen_vel = vec2d.vec2d(random.randint(0, 10), random.randint(0, 10))
 						# create new asteroid
 						if valid_pos:
 							self.manager.create_entity([phys.PhysicsEcsComponent(gen_pos.x, gen_pos.y, mass=100, static=False, vx=gen_vel.x, vy=gen_vel.y), 

@@ -20,7 +20,7 @@ setup(name=APP_NAME,
       include_package_data=True,
       zip_safe=False,
       scripts=['run_game.py'],
-      packages=['game', 'plib', 'pyglet', 'data'],
+      packages=['game', 'plib'],
       classifiers = [
         #'Development Status :: 5 - Production/Stable',
         'Programming Language :: Python',
