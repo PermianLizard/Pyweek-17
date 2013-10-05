@@ -61,7 +61,7 @@ class MapScene(scene.Scene):
 		tx = const.WIDTH // 2
 		ty = const.HEIGHT // 2
 
-		gl.glColor3f(0, 0, 0.2, 1)
+		gl.glColor3f(0, 0, 0.2)
 		for i in xrange(0, const.WIDTH, 50):
 			gl.glBegin(gl.GL_LINES)
 			gl.glVertex2f(i, 0.0)
